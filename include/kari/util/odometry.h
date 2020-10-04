@@ -1,7 +1,7 @@
 #include "kari/util/misc.h"
 #include "api.h"
 
-extern pros::ADIEncoder LEncoder, REncoder;
+extern pros::ADIEncoder LEncoder, REncoder, MEncoder;
 
 class Odom {
   public:

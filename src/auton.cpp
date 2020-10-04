@@ -311,7 +311,7 @@ void skills1()
   // chassis.drive(point, 100, 12).withTol(40).waitUntilSettled();
   // chassis.withPoints({1000, 1000}, {1000, -1000}).drive().waitUntilSettled();
   // chassis.smartstrafe(45, 90).waitUntilSettled();
-  chassis.strafe(1000, 127).withSlop(-100).withTol(40).waitUntilSettled();
+  chassis.strafe(1000, 127).withSlop(300).withTol(40).waitUntilSettled();
 
 }
 
