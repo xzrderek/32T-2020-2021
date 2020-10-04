@@ -10,8 +10,8 @@ pros::Imu Imu_L(20), Imu_R(3);
 
 bool Odom::isRunning = false;
 
-int Odom::currentL = 0, Odom::currentR = 0;
-int Odom::deltaL = 0, Odom::deltaR = 0, Odom::lastDeltaL = 0, Odom::lastDeltaR = 0;
+int Odom::currentL = 0, Odom::currentR = 0, Odom::currentM;
+int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastDeltaL = 0, Odom::lastDeltaR = 0, Odom::lastDeltaM = 0;
 
 double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;
 double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0;
@@ -26,12 +26,20 @@ int * Odom::getR() {
   return &currentR;
 }
 
+int * Odom::getM() {
+  return &currentM;
+}
+
 int * Odom::getDL() {
   return &deltaL;
 }
 
 int * Odom::getDR() {
   return &deltaR;
+}
+
+int * Odom::getDM() {
+  return &deltaM;
 }
 
 double * Odom::getThetaRad() {
@@ -99,15 +107,18 @@ void Odom::run() {
 
     currentL = LEncoder.get_value();
     currentR = REncoder.get_value();
+    currentM = MEncoder.get_value();
 
     deltaL = currentL - lastDeltaL;
     deltaR = currentR - lastDeltaR;
+    deltaM = currentM - lastDeltaM;
 
     posX = posX + (( deltaL + deltaR ) / 2) * cos( thetaRad );
     posY = posY + (( deltaL + deltaR ) / 2) * sin( thetaRad );
 
     lastDeltaL = LEncoder.get_value();
     lastDeltaR = REncoder.get_value();
+    lastDeltaM = MEncoder.get_value();
 
     pros::delay(10);
   }

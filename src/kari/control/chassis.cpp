@@ -21,19 +21,20 @@ std::vector<ChassisTarget> Chassis::target;
 int Chassis::currTarget = 0;
 bool Chassis::isUsingPoint = false, Chassis::isUsingAngle = false;
 
-int *Chassis::odomL, *Chassis::odomR;
+int *Chassis::odomL, *Chassis::odomR, *Chassis::odomM;
 double *Chassis::theta, *Chassis::posX, *Chassis::posY;
 
-double Chassis::current = 0, Chassis::initL = 0, Chassis::initR = 0, Chassis::deltaL = 0, Chassis::deltaR = 0,
+double Chassis::current = 0, Chassis::initL = 0, Chassis::initR = 0, Chassis::initM = 0, Chassis::deltaL = 0, Chassis::deltaR = 0, Chassis::deltaM = 0,
 Chassis::driveError = 0, Chassis::driveIntegral = 0, Chassis::driveLast = 0, Chassis::turnError = 0, Chassis::turnIntegral = 0, Chassis::turnLast = 0,
 Chassis::driveOutput = 0, Chassis::driveOutput2 = 0, Chassis::driveOutput3 = 0, Chassis::driveOutput4 = 0, Chassis::turnOutput = 0, Chassis::driveSlewOutput = 0, Chassis::driveSlewOutput2 = 0, Chassis::driveSlewOutput3 = 0, Chassis::driveSlewOutput4 = 0 , Chassis::turnSlewOutput = 0,
 Chassis::totOutputL = 0, Chassis::totOutputR = 0;
 
 Chassis::Chassis() { }
 
-Chassis::Chassis(int * odomL_, int * odomR_, double * theta_, double * posX_, double * posY_) {
+Chassis::Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_) {
   odomL = odomL_;
   odomR = odomR_;
+  odomM = odomM_;
   theta = theta_;
   posX = posX_;
   posY = posY_;
@@ -230,6 +231,23 @@ Chassis& Chassis::smartstrafe(double direction_, double theta_, double drivespee
   RF.tare_position();
   RB.tare_position();
   mode = STRAFING_SMART;
+  return *this;
+}
+
+// Use middle trakcing wheel to acheive smart strafe
+Chassis& Chassis::strafe(double x, double y, int speed_, double rate_) {
+  currTarget = 0;
+  if(target.size() != 1) target.resize(1);
+  initL = *odomL;
+  initR = *odomR;
+  initM = *odomM;
+  target[0].x = x;
+  target[0].y = y;
+  target[0].speedDrive = speed_;
+  target[0].rateDrive = rate_;
+  isSettled = false;
+  reset();
+  mode = STRAFING_DIST;
   return *this;
 }
 
@@ -681,6 +699,64 @@ void Chassis::run() {
         LB.move(driveSlewOutput + driveSlewOutput4 + turnSlewOutput);
         RF.move(-driveSlewOutput - driveSlewOutput4 + turnSlewOutput);
         RB.move(-driveSlewOutput2 + driveSlewOutput3 + turnSlewOutput);
+        break;
+      }
+
+      case STRAFING_DIST: {
+        double x0 = (initL + initR ) / 2;
+        double y0 = initM;
+        target[currTarget].theta = atan2( target[currTarget].y - y0, target[currTarget].x - x0 ) * ( 180 / PI );
+        double t_angle = ( target[currTarget].theta - 45) * PI / 180;
+
+        driveError = sqrt( pow( target[currTarget].x - x0, 2) + pow( target[currTarget].y - y0, 2) );
+
+        driveIntegral += driveError;
+        if( driveIntegral > kI_Windup ) driveIntegral = kI_Windup;
+         else if( driveIntegral < -kI_Windup ) driveIntegral = -kI_Windup;
+
+        driveOutput = ( driveError * kP_drive ) + ( driveIntegral * kI_drive ) + ( driveError - driveLast ) * kD_drive;
+
+        driveLast = driveError;
+
+        if(target.size() - 1 == currTarget) {
+          if(driveOutput > 0) {
+            if(driveOutput > driveSlewOutput + target[currTarget].rateDrive) driveSlewOutput += target[currTarget].rateDrive;
+              else driveSlewOutput = driveOutput;
+          } else if(driveOutput < 0) {
+            if(driveOutput < driveSlewOutput - target[currTarget].rateDrive) driveSlewOutput -= target[currTarget].rateDrive;
+              else driveSlewOutput = driveOutput;
+          }
+        } else {
+          //useless actually
+          if(target[currTarget].speedDrive > driveSlewOutput) driveSlewOutput += target[currTarget].rateDrive;
+          if(target[currTarget].speedDrive < driveSlewOutput) driveSlewOutput -= target[currTarget].rateDrive;
+        }
+
+        if(driveSlewOutput > target[currTarget].speedDrive) driveSlewOutput = target[currTarget].speedDrive;
+        if(driveSlewOutput < -target[currTarget].speedDrive) driveSlewOutput = -target[currTarget].speedDrive;
+
+        if(driveError < tolerance && driveError > -tolerance && turnError < tolerance && turnError > -tolerance) {
+          if(target.size() - 1 == currTarget) {
+            clearArr();
+            isUsingPoint = false;
+            isUsingAngle = false;
+            isSettled = true;
+            withGain().withTurnGain().withTol().withSlop().reset();
+            break;
+          } else {
+            currTarget++;
+            break;
+          }
+        }
+
+        double totOutput1 = driveSlewOutput * cos(t_angle);
+        double totOutput2 = driveSlewOutput * sin(t_angle);
+
+        LF.move(totOutput1);
+        LB.move(totOutput2);
+        RF.move(totOutput2);
+        RB.move(totOutput1);
+
         break;
       }
 

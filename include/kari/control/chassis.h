@@ -10,6 +10,7 @@ extern pros::ADIUltrasonic Ultrasonic;
 #define TURNING 4
 #define STRAFING 5
 #define STRAFING_SMART 6
+#define STRAFING_DIST 7
 
 struct Vector2 {
   double x;
@@ -31,7 +32,7 @@ struct ChassisTarget {
 class Chassis {
   public:
     Chassis();
-    Chassis(int * odomL_, int * odomR_, double * theta_, double * posX_, double * posY_);
+    Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_);
     ~Chassis();
 
     /*
@@ -186,6 +187,11 @@ class Chassis {
     Chassis& smartstrafe(double direction_, double theta_, double drivespeed_ = 80, double turnspeed_ = 50, double rate_ = 4, double rate2_ = 4);
 
     /*
+    Strafe the robot to point (x, y)
+    */
+    Chassis& strafe(double x_, double y_, int speed_, double rate_);
+
+    /*
     Delays the calling thread until the robot has settled.
     */
     void waitUntilSettled();
@@ -239,10 +245,10 @@ class Chassis {
     static int currTarget;
     static bool isUsingPoint, isUsingAngle;
 
-    static int *odomL, *odomR;
+    static int *odomL, *odomR, *odomM;
     static double *theta, *posX, *posY;
 
-    static double current, initL, initR, deltaL, deltaR;
+    static double current, initL, initR, initM, deltaL, deltaR, deltaM;
     static double driveError, driveIntegral, driveLast, turnError, turnIntegral, turnLast;
     static double driveOutput, driveOutput2, driveOutput3, driveOutput4, turnOutput, driveSlewOutput, driveSlewOutput2, driveSlewOutput3, driveSlewOutput4, turnSlewOutput;
     static double totOutputL, totOutputR;

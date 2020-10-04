@@ -1,0 +1,266 @@
+diff --git a/include/kari/control/chassis.h b/include/kari/control/chassis.h
+index 371660c..48444f0 100644
+--- a/include/kari/control/chassis.h
++++ b/include/kari/control/chassis.h
+@@ -10,6 +10,7 @@ extern pros::ADIUltrasonic Ultrasonic;
+ #define TURNING 4
+ #define STRAFING 5
+ #define STRAFING_SMART 6
++#define STRAFING_DIST 7
+ 
+ struct Vector2 {
+   double x;
+@@ -31,7 +32,7 @@ struct ChassisTarget {
+ class Chassis {
+   public:
+     Chassis();
+-    Chassis(int * odomL_, int * odomR_, double * theta_, double * posX_, double * posY_);
++    Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_);
+     ~Chassis();
+ 
+     /*
+@@ -185,6 +186,11 @@ class Chassis {
+     */
+     Chassis& smartstrafe(double direction_, double theta_, double drivespeed_ = 80, double turnspeed_ = 50, double rate_ = 4, double rate2_ = 4);
+ 
++    /*
++    Strafe the robot to point (x, y)
++    */
++    Chassis& strafe(double x_, double y_, int speed_, double rate_);
++
+     /*
+     Delays the calling thread until the robot has settled.
+     */
+@@ -239,10 +245,10 @@ class Chassis {
+     static int currTarget;
+     static bool isUsingPoint, isUsingAngle;
+ 
+-    static int *odomL, *odomR;
++    static int *odomL, *odomR, *odomM;
+     static double *theta, *posX, *posY;
+ 
+-    static double current, initL, initR, deltaL, deltaR;
++    static double current, initL, initR, initM, deltaL, deltaR, deltaM;
+     static double driveError, driveIntegral, driveLast, turnError, turnIntegral, turnLast;
+     static double driveOutput, driveOutput2, driveOutput3, driveOutput4, turnOutput, driveSlewOutput, driveSlewOutput2, driveSlewOutput3, driveSlewOutput4, turnSlewOutput;
+     static double totOutputL, totOutputR;
+diff --git a/include/kari/util/odometry.h b/include/kari/util/odometry.h
+index 59ff581..cabc5a0 100644
+--- a/include/kari/util/odometry.h
++++ b/include/kari/util/odometry.h
+@@ -9,8 +9,10 @@ class Odom {
+     // Getters & Setters
+     int * getL();
+     int * getR();
++    int * getM();
+     int * getDL();
+     int * getDR();
++    int * getDM();
+ 
+     double * getThetaDeg();
+     double * getThetaRad();
+@@ -28,8 +30,8 @@ class Odom {
+   private:
+     static bool isRunning;
+ 
+-    static int currentL, currentR;
+-    static int deltaL, deltaR, lastDeltaL, lastDeltaR;
++    static int currentL, currentR, currentM;
++    static int deltaL, deltaR, deltaM, lastDeltaL, lastDeltaR, lastDeltaM;
+ 
+     static double inertL, inertR, inertT;
+     static double thetaRad, thetaDeg, offset, posX, posY;
+diff --git a/src/initialize.cpp b/src/initialize.cpp
+index a429827..06e94f8 100644
+--- a/src/initialize.cpp
++++ b/src/initialize.cpp
+@@ -20,7 +20,7 @@ void initialize() {
+ 
+   // Class Initialization
+   Odom odom;
+-  Chassis chassis(odom.getL(), odom.getR(), odom.getThetaDeg(), odom.getX(), odom.getY());
++  Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY());
+   // Rack rack;
+   // Arm arm;
+   Display Disp;
+@@ -55,6 +55,7 @@ void initialize() {
+ 
+   Disp.addInfo("Left", 'i', odom.getL())
+       .addInfo("Right", 'i', odom.getR())
++      .addInfo("Middle", 'i', odom.getM())
+       .addInfo("Deg Theta", 'd', odom.getThetaDeg())
+       .addInfo("Rad Theta", 'd', odom.getThetaRad())
+       .addInfo("X", 'd', odom.getX())
+diff --git a/src/kari/control/chassis.cpp b/src/kari/control/chassis.cpp
+index 672ee8a..5c6215d 100644
+--- a/src/kari/control/chassis.cpp
++++ b/src/kari/control/chassis.cpp
+@@ -21,19 +21,20 @@ std::vector<ChassisTarget> Chassis::target;
+ int Chassis::currTarget = 0;
+ bool Chassis::isUsingPoint = false, Chassis::isUsingAngle = false;
+ 
+-int *Chassis::odomL, *Chassis::odomR;
++int *Chassis::odomL, *Chassis::odomR, *Chassis::odomM;
+ double *Chassis::theta, *Chassis::posX, *Chassis::posY;
+ 
+-double Chassis::current = 0, Chassis::initL = 0, Chassis::initR = 0, Chassis::deltaL = 0, Chassis::deltaR = 0,
++double Chassis::current = 0, Chassis::initL = 0, Chassis::initR = 0, Chassis::initM = 0, Chassis::deltaL = 0, Chassis::deltaR = 0, Chassis::deltaM = 0,
+ Chassis::driveError = 0, Chassis::driveIntegral = 0, Chassis::driveLast = 0, Chassis::turnError = 0, Chassis::turnIntegral = 0, Chassis::turnLast = 0,
+ Chassis::driveOutput = 0, Chassis::driveOutput2 = 0, Chassis::driveOutput3 = 0, Chassis::driveOutput4 = 0, Chassis::turnOutput = 0, Chassis::driveSlewOutput = 0, Chassis::driveSlewOutput2 = 0, Chassis::driveSlewOutput3 = 0, Chassis::driveSlewOutput4 = 0 , Chassis::turnSlewOutput = 0,
+ Chassis::totOutputL = 0, Chassis::totOutputR = 0;
+ 
+ Chassis::Chassis() { }
+ 
+-Chassis::Chassis(int * odomL_, int * odomR_, double * theta_, double * posX_, double * posY_) {
++Chassis::Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_) {
+   odomL = odomL_;
+   odomR = odomR_;
++  odomM = odomM_;
+   theta = theta_;
+   posX = posX_;
+   posY = posY_;
+@@ -233,6 +234,23 @@ Chassis& Chassis::smartstrafe(double direction_, double theta_, double drivespee
+   return *this;
+ }
+ 
++// Use middle trakcing wheel to acheive smart strafe
++Chassis& Chassis::strafe(double x, double y, int speed_, double rate_) {
++  currTarget = 0;
++  if(target.size() != 1) target.resize(1);
++  initL = *odomL;
++  initR = *odomR;
++  initM = *odomM;
++  target[0].x = x;
++  target[0].y = y;
++  target[0].speedDrive = speed_;
++  target[0].rateDrive = rate_;
++  isSettled = false;
++  reset();
++  mode = STRAFING_DIST;
++  return *this;
++}
++
+ void Chassis::waitUntilSettled() {
+   while(!isSettled) pros::delay(20);
+ }
+@@ -684,6 +702,64 @@ void Chassis::run() {
+         break;
+       }
+ 
++      case STRAFING_DIST: {
++        double x0 = (initL + initR ) / 2;
++        double y0 = initM;
++        target[currTarget].theta = atan2( target[currTarget].y - y0, target[currTarget].x - x0 ) * ( 180 / PI );
++        double t_angle = ( target[currTarget].theta - 45) * PI / 180;
++
++        driveError = sqrt( pow( target[currTarget].x - x0, 2) + pow( target[currTarget].y - y0, 2) );
++
++        driveIntegral += driveError;
++        if( driveIntegral > kI_Windup ) driveIntegral = kI_Windup;
++         else if( driveIntegral < -kI_Windup ) driveIntegral = -kI_Windup;
++
++        driveOutput = ( driveError * kP_drive ) + ( driveIntegral * kI_drive ) + ( driveError - driveLast ) * kD_drive;
++
++        driveLast = driveError;
++
++        if(target.size() - 1 == currTarget) {
++          if(driveOutput > 0) {
++            if(driveOutput > driveSlewOutput + target[currTarget].rateDrive) driveSlewOutput += target[currTarget].rateDrive;
++              else driveSlewOutput = driveOutput;
++          } else if(driveOutput < 0) {
++            if(driveOutput < driveSlewOutput - target[currTarget].rateDrive) driveSlewOutput -= target[currTarget].rateDrive;
++              else driveSlewOutput = driveOutput;
++          }
++        } else {
++          //useless actually
++          if(target[currTarget].speedDrive > driveSlewOutput) driveSlewOutput += target[currTarget].rateDrive;
++          if(target[currTarget].speedDrive < driveSlewOutput) driveSlewOutput -= target[currTarget].rateDrive;
++        }
++
++        if(driveSlewOutput > target[currTarget].speedDrive) driveSlewOutput = target[currTarget].speedDrive;
++        if(driveSlewOutput < -target[currTarget].speedDrive) driveSlewOutput = -target[currTarget].speedDrive;
++
++        if(driveError < tolerance && driveError > -tolerance && turnError < tolerance && turnError > -tolerance) {
++          if(target.size() - 1 == currTarget) {
++            clearArr();
++            isUsingPoint = false;
++            isUsingAngle = false;
++            isSettled = true;
++            withGain().withTurnGain().withTol().withSlop().reset();
++            break;
++          } else {
++            currTarget++;
++            break;
++          }
++        }
++
++        double totOutput1 = driveSlewOutput * cos(t_angle);
++        double totOutput2 = driveSlewOutput * sin(t_angle);
++
++        LF.move(totOutput1);
++        LB.move(totOutput2);
++        RF.move(totOutput2);
++        RB.move(totOutput1);
++
++        break;
++      }
++
+       default: {
+         break;
+       }
+diff --git a/src/kari/util/odometry.cpp b/src/kari/util/odometry.cpp
+index 9de4b9d..b7f6fd8 100644
+--- a/src/kari/util/odometry.cpp
++++ b/src/kari/util/odometry.cpp
+@@ -10,8 +10,8 @@ pros::Imu Imu_L(20), Imu_R(3);
+ 
+ bool Odom::isRunning = false;
+ 
+-int Odom::currentL = 0, Odom::currentR = 0;
+-int Odom::deltaL = 0, Odom::deltaR = 0, Odom::lastDeltaL = 0, Odom::lastDeltaR = 0;
++int Odom::currentL = 0, Odom::currentR = 0, Odom::currentM;
++int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastDeltaL = 0, Odom::lastDeltaR = 0, Odom::lastDeltaM = 0;
+ 
+ double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;
+ double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0;
+@@ -26,6 +26,10 @@ int * Odom::getR() {
+   return &currentR;
+ }
+ 
++int * Odom::getM() {
++  return &currentM;
++}
++
+ int * Odom::getDL() {
+   return &deltaL;
+ }
+@@ -34,6 +38,10 @@ int * Odom::getDR() {
+   return &deltaR;
+ }
+ 
++int * Odom::getDM() {
++  return &deltaM;
++}
++
+ double * Odom::getThetaRad() {
+   return &thetaRad;
+ }
+@@ -99,15 +107,18 @@ void Odom::run() {
+ 
+     currentL = LEncoder.get_value();
+     currentR = REncoder.get_value();
++    currentM = MEncoder.get_value();
+ 
+     deltaL = currentL - lastDeltaL;
+     deltaR = currentR - lastDeltaR;
++    deltaM = currentM - lastDeltaM;
+ 
+     posX = posX + (( deltaL + deltaR ) / 2) * cos( thetaRad );
+     posY = posY + (( deltaL + deltaR ) / 2) * sin( thetaRad );
+ 
+     lastDeltaL = LEncoder.get_value();
+     lastDeltaR = REncoder.get_value();
++    lastDeltaM = MEncoder.get_value();
+ 
+     pros::delay(10);
+   }

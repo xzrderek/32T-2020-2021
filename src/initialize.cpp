@@ -20,7 +20,7 @@ void initialize() {
 
   // Class Initialization
   Odom odom;
-  Chassis chassis(odom.getL(), odom.getR(), odom.getThetaDeg(), odom.getX(), odom.getY());
+  Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY());
   // Rack rack;
   // Arm arm;
   Display Disp;
@@ -55,6 +55,7 @@ void initialize() {
 
   Disp.addInfo("Left", 'i', odom.getL())
       .addInfo("Right", 'i', odom.getR())
+      .addInfo("Middle", 'i', odom.getM())
       .addInfo("Deg Theta", 'd', odom.getThetaDeg())
       .addInfo("Rad Theta", 'd', odom.getThetaRad())
       .addInfo("X", 'd', odom.getX())
