@@ -3,7 +3,7 @@
 #include "api.h"
 
 pros::ADIEncoder LEncoder(1, 2, true),
-                 REncoder(7, 8);
+                 REncoder(7, 8, true);
 
 pros::Imu Imu_L(20), Imu_R(3);
 

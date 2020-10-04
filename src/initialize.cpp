@@ -15,8 +15,8 @@ void initialize() {
   double init = timer.millis().convert(millisecond);
   macro::print("Starting Init Routine");
 
-  // Autonomous Auton;
-  // macro::print("Auton Set!");
+  Autonomous Auton;
+  macro::print("Auton Set!");
 
   // Class Initialization
   Odom odom;
@@ -26,8 +26,8 @@ void initialize() {
   Display Disp;
 
   // Roller Init
-  // io::RollerL.set_brake_mode(MOTOR_BRAKE_HOLD);
-	// io::RollerR.set_brake_mode(MOTOR_BRAKE_HOLD);
+  io::RollerL.set_brake_mode(MOTOR_BRAKE_HOLD);
+	io::RollerR.set_brake_mode(MOTOR_BRAKE_HOLD);
 
   // Sensor Init
   odom.calibrateGyro();
@@ -48,8 +48,8 @@ void initialize() {
   pros::Task b_display(Disp.start, NULL, "Display Controller");
   b_display.set_priority(TASK_PRIORITY_MIN);
 
-  // pros::Task b_auton(Auton.start, NULL, "Auton Controller");
-  // b_display.set_priority(TASK_PRIORITY_MIN);
+  pros::Task b_auton(Auton.start, NULL, "Auton Controller");
+  b_display.set_priority(TASK_PRIORITY_MIN);
 
   std::cout << "Tasks Initialized!" << std::endl;
 

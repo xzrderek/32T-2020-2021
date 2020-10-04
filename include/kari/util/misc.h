@@ -15,7 +15,8 @@ namespace io {
   void roller(double rot, int speed);
 
   void scorer(int speed);
-  void driveScorer(int speed);
+  void driveTScorer(int speed);
+  void driveBScorer(int speed);
 }
 
 namespace macro {
