@@ -12,25 +12,30 @@ BINDIR=$(ROOT)/bin
 SRCDIR=$(ROOT)/src
 INCDIR=$(ROOT)/include
 
-WARNFLAGS+=
+WARNFLAGS+=-Wno-psabi
+WARNFLAGS+=-Wno-attributes
 EXTRA_CFLAGS=
 EXTRA_CXXFLAGS=
 
 # Set to 1 to enable hot/cold linking
 USE_PACKAGE:=1
 
-# Add libraries you do not wish to include in the cold image here
-# EXCLUDE_COLD_LIBRARIES:= $(FWDIR)/your_library.a
-EXCLUDE_COLD_LIBRARIES:= 
-
 # Set this to 1 to add additional rules to compile your project as a PROS library template
-IS_LIBRARY:=0
+IS_LIBRARY:=1
 # TODO: CHANGE THIS!
-LIBNAME:=libbest
+LIBNAME:=kari
 VERSION:=1.0.0
 # EXCLUDE_SRC_FROM_LIB= $(SRCDIR)/unpublishedfile.c
 # this line excludes opcontrol.c and similar files
-EXCLUDE_SRC_FROM_LIB+=$(foreach file, $(SRCDIR)/main,$(foreach cext,$(CEXTS),$(file).$(cext)) $(foreach cxxext,$(CXXEXTS),$(file).$(cxxext)))
+EXCLUDE_SRC_FROM_LIB+=$(foreach file, $(SRCDIR)/opcontrol $(SRCDIR)/initialize $(SRCDIR)/autonomous,$(foreach cext,$(CEXTS),$(file).$(cext)) $(foreach cxxext,$(CXXEXTS),$(file).$(cxxext)))
+EXCLUDE_SRC_FROM_LIB+=$(SRCDIR)/auton.cpp
+EXCLUDE_SRC_FROM_LIB+=$(SRCDIR)/kari/display/displayController.cpp
+EXCLUDE_SRC_FROM_LIB+=$(SRCDIR)/kari/control/chassis.cpp
+# EXCLUDE_SRC_FROM_LIB+=$(SRCDIR)/kari/control/rack.cpp
+# EXCLUDE_SRC_FROM_LIB+=$(SRCDIR)/kari/control/arm.cpp
+# EXCLUDE_SRC_FROM_LIB+=$(SRCDIR)/kari/control/vision.cpp
+
+EXCLUDE_SRC_FROM_LIB+=$(SRCDIR)/kari/util/odometry.cpp
 
 # files that get distributed to every user (beyond your source archive) - add
 # whatever files you want here. This line is configured to add all header files

@@ -1,490 +1,312 @@
 #include "main.h"
-#include "lowLevel.h"
-#include "api.h"
-#include "robot.h"
-#include "odom.h"
 
-using namespace pros;
-using std::string;
+#include "kari/control/chassis.h"
+#include "kari/control/rack.h"
+#include "kari/control/arm.h"
 
-extern Controller master;
-extern Robot rob;
+#include "kari/util/odometry.h"
+#include "kari/util/misc.h"
+#include "kari/util/vision.h"
 
-void resetEncoders();
-void updatePIDs(void *param);
-void updateTask(void *param);
+static Chassis chassis;
+static Rack rack;
+static Arm arm;
+static Odom odom;
 
-void init()
-{
-  rob.reset();
-  resetEncoders();
+using namespace io;
 
-  rob.base.odom.resetEncoders = true;
+// Make Trigger
 
-  // Task sensorUpdates(updateSensor, &rob, "");
-  Task taskUpdate(updateTask, &rob, "");
-  Task PIDsUpdate(updatePIDs, &rob, "");
-  // Task trayToggleTask(trayToggleFunc, &rob, "");
-  Task odometryCalculations(calculatePosBASE, &rob.base.odom, "");
+/*===========================================
+  DICTIONARY
+===========================================*/
+// IDLE = 0
+// DRIVING_POINT = 1
+// DRIVING_DIST = 2
+// TURNING = 3
+// STRAFING = 4
+
+void tester() {
+  odom.calibrateGyro();
+
+  // roller(127);
+  // chassis.drive(2100,65,4).withAngle(0, 80).withTol(30).waitUntilSettled();
+  // chassis.drive(-300,70,4).withAngle(0, 80).withTol(30).waitUntilSettled();
+  // chassis.turn(45,70).withTol(10).waitUntilSettled();
+  // chassis.drive(500,40,2).withAngle(45, 80).withTol(30).waitUntilSettled();
+
+  io::master.rumble(" . .");
 }
 
-/*
-1=RED
--1=BLUE
-*/
-void smallAuton(int color = 1)
-{
-  rob.intake.setPIDState(OFF);
-  rob.base.moveToUntil(12, 1000, 100);
-  rob.lift.moveTo(-1400);
-  rob.tray.moveTo(600);
-  delay(1200);
-  rob.lift.moveTo(-100);
+/*===========================================
+  PREMADE FUNCTIONS
+===========================================*/
+void deploy() {
+  arm.move(ARM_LOW_TOWER, 127).withTol(0.3).waitUntilSettled();
+  arm.zero();
+}
+
+/*===========================================
+  RED MATCH AUTONOMOUSES
+===========================================*/
+void redsmallzone11() {
+
+}
+
+void redsmallzone8() {
+
+}
+
+void redsmallzone7() {
+  roller(127);
+  chassis.lock();
+  chassis.drive(1050,50,2).withAngle(0,50).withTol(40).waitUntilSettled();
+  chassis.drive(-1300,200,5).withAngle(65,127,3).withTol(40).waitUntilSettled();
+  chassis.turn(0,127).withTol(10).waitUntilSettled();
+  chassis.drive(1600,60,2).withAngle(0,50).withTol(40).waitUntilSettled();
+  chassis.drive(-1500,127,2).withTol(40).waitUntilSettled();
+  chassis.turn(270,80).withTol(10).waitUntilSettled();
+  LF.move(100);
+  LB.move(-100);
+  RF.move(100);
+  RB.move(-100);
+  delay(800);
+  rack.move(RACK_UP,127,7).withGain(0.1).withTol(30);
+  roller(-0.3,50);
+  delay(500);
+  chassis.left(50);
+  chassis.right(50);
+  roller(-0.2,100);
+  delay(800);
+  chassis.left(30);
+  chassis.right(30);
+  rack.waitUntilSettled();
+  rack.move(RACK_DOWN,127,8).withTol(20);
+  roller(-70);
+  chassis.lock();
+  chassis.drive(-550,60,2).withAngle(270,50).withTol(40).waitUntilSettled();
+}
+
+void redsmallzone5() {
+
+}
+
+void redbigzone() {
+
+}
+
+void redbigzonescore() {
+
+}
+
+/*===========================================
+  BLUE MATCH AUTONOMOUSES
+===========================================*/
+void bluesmallzone11() {
+
+}
+
+void bluesmallzone8() {
+
+}
+
+void bluesmallzone7() {
+
+}
+
+void bluesmallzone5() {
+
+}
+
+void bluebigzone() {
+
+}
+
+void bluebigzonescore() {
+
+}
+
+/*===========================================
+  SKILLS AUTONOMOUSES
+===========================================*/
+void skills1() {
+chassis.lock();
+  odom.zero();
+  chassis.drive(250,60,2).withAngle(0,5).withTol(40);
+  arm.move(1.05, 127);
+  delay(800);
+  chassis.setMode(0);
+  arm.zero();
+  chassis.left(-40);
+  chassis.right(-40);
+  delay(800);
+  roller(127);
+  chassis.drive(1600,70,2).withAngle(0,60).withTurnGain(5,0.3,3).withTol(40).waitUntilSettled();
+  delay(500);
+  arm.tower(1);
   delay(300);
-  rob.intake.move(0);
-  rob.intake.move(-90);
-  rob.base.moveToUntil(34, 2600, 80);
-  rob.intake.move(0);
-  // rob.base.moveToUntil(-20, 2000, 80);
-  rob.base.moveToUntil(-24, 1200, 100);
-  // rob.base.moveToUntil(-5, 1000, 80);
-  // rob.base.moveToUntil(0, 50);
-  rob.base.turnUntil(130, 1300, 110);
-  rob.base.moveToUntil(18, 1700, 80);
-
-  // rob.base.moveToUntil(1000, 4000, 70);
-  rob.intake.moveToUntil(rob.intake.getSensorVal() - 800, 1000, 70);
-  rob.intake.moveToUntil(rob.intake.getSensorVal() + 600, 1200, 40);
-  rob.tray.moveToUntil(4000);
-  rob.base.moveToUntil(-15, 1700, 100);
-  // 14800ms up to here
-  delay(2000);
-}
-
-void turn()
-{
-  rob.base.pointTurn(80);
-}
-// For reference only
-// rob.intake.move(127);
-// //rob.intake.setPIDState(ON);
-// rob.base.driveToPoint(100, 100);
-// rob.intake.move(0);
-// rob.base.driveToPoint(200, 300);
-
-void bigAuton()
-{
-  rob.base.moveToUntil(-10, 500, 100);
-  rob.base.moveToUntil(15, 1000, 100);
-}
-
-void redSmall()
-{
-  smallAuton(1);
-}
-
-void blueSmall()
-{
-  smallAuton(-1);
-}
-
-void smallAutonOld(int color = 1)
-{
-  rob.intake.setPIDState(OFF);
-  rob.base.moveToUntil(12, 1000, 100);
-  rob.lift.moveTo(-1400);
-  rob.tray.moveTo(600);
-  delay(1200);
-  rob.lift.moveTo(-100);
+  chassis.turn(25,70).withTol(10).waitUntilSettled();
+  chassis.drive(300,60,2).withAngle(25,50).withTol(40).waitUntilSettled();
+  roller(-80);
   delay(300);
-  rob.intake.move(0);
-  rob.intake.move(-90);
-  rob.base.moveToUntil(34, 2600, 80);
-  rob.intake.move(0);
-  // rob.base.moveToUntil(-20, 2000, 80);
-  rob.base.moveToUntil(-24, 1200, 100);
-  // rob.base.moveToUntil(-5, 1000, 80);
-  // rob.base.moveToUntil(0, 50);
-  //rob.base.turnUntil(color * 130, 1300, 110);
-  rob.base.moveToUntil(18, 1700, 80);
-
-  rob.base.pointTurn(50);
-  delay(1000);
-  rob.base.pointTurn(0);
-
-  // rob.base.moveToUntil(1000, 4000, 70);
-  rob.intake.moveToUntil(rob.intake.getSensorVal() - 800, 1000, 70);
-  rob.intake.moveToUntil(rob.intake.getSensorVal() + 600, 1200, 40);
-  rob.tray.moveToUntil(4000);
-  rob.base.moveToUntil(-15, 1700, 100);
-  // 14800ms up to here
-  delay(2000);
-}
-
-void Vanden()
-{
-  rob.intake.setPIDState(OFF);
-  rob.base.moveToUntil(12, 1000, 100);
-  rob.lift.moveTo(-1800);
-  rob.tray.moveTo(600);
-  delay(1200);
-  rob.lift.moveTo(-100);
+  chassis.drive(-400,80,2).withAngle(25,50).withTol(40).waitUntilSettled();
+  arm.zero();
+  chassis.turn(0,90).withTol(10).waitUntilSettled();
+  roller(127);
+  chassis.drive(2700,55,2).withAngle(0,50).withTol(30).waitUntilSettled();
+  delay(500);
+  arm.tower(1);
+  delay(100);
+  chassis.turn(260,70).withTol(10).waitUntilSettled();
+  chassis.drive(150,60,2).withAngle(260,50).withTol(40).waitUntilSettled();
+  roller(-80);
   delay(300);
-  rob.intake.move(0);
-  rob.intake.move(-90);
-  rob.base.moveToUntil(34, 2600, 80);
-  rob.intake.move(0);
-  // rob.base.moveToUntil(-20, 2000, 80);
-  rob.base.moveToUntil(-24, 1200, 100);
-  rob.base.moveToUntil(0, 100, 0);
-  // rob.base.moveToUntil(-5, 1000, 80);
-  // rob.base.moveToUntil(0, 50);
-  //rob.base.turnUntil(color * 130, 1300, 110);
-  rob.base.pointTurn(80);
-  delay(1200);
-  rob.base.pointTurn(0);
-  rob.lift.moveTo(-100);
-  rob.tray.moveTo(500);
-  rob.base.moveToUntil(18, 1700, 80);
-
-  //rob.base.moveToUntil(1000, 4000, 70);
-  //rob.intake.moveToUntil(rob.intake.getSensorVal() - 800, 1000, 70);
-  //rob.intake.moveToUntil(rob.intake.getSensorVal() + 600, 1200, 40);
-  rob.tray.moveToUntil(4000);
-  rob.base.moveToUntil(5, 500, 50);
-  rob.base.moveToUntil(-15, 1700, 100);
-  // 14800ms up to here
-  delay(2000);
-}
-
-void CV1(int color = 1)
-{
-  rob.intake.setPIDState(OFF);
-
-  rob.tray.moveTo(800);
-  //task: movetountil(target, 10 seconds)
-  //delay(500);
-  rob.tray.moveTo(0);
-  delay(600);
-  rob.lift.moveTo(-100);
+  chassis.drive(-200,60,2).withAngle(260,50).withTol(40).waitUntilSettled();
+  roller(127);
+  chassis.turn(350,70).withTol(10);
   delay(300);
-  rob.intake.move(0);
-  rob.intake.move(-120);
-  rob.base.moveToUntil(34, 2600, 80);
-  // rob.intake.move(0);
-  // // rob.base.moveToUntil(-20, 2000, 80);
-  // rob.base.moveToUntil(-24, 1200, 100);
-  // // rob.base.moveToUntil(-5, 1000, 80);
-  // // rob.base.moveToUntil(0, 50);
-  // //rob.base.turnUntil(color * 130, 1300, 110);
-  // rob.base.moveToUntil(18, 1700, 80);
-  //
-  // rob.base.pointTurn(50);
-  // delay(1000);
-  // rob.base.pointTurn(0);
-  //
-  // // rob.base.moveToUntil(1000, 4000, 70);
-  // rob.intake.moveToUntil(rob.intake.getSensorVal() - 800, 1000, 70);
-  // rob.intake.moveToUntil(rob.intake.getSensorVal() + 600, 1200, 40);
-  // rob.tray.moveToUntil(4000);
-  // rob.base.moveToUntil(-15, 1700, 100);
-  // // 14800ms up to here
-  // delay(2000);
+  arm.zero();
+  chassis.waitUntilSettled();
+  chassis.unlock();
+  chassis.drive(300,127,2).withAngle(350,50).withTol(60).waitUntilSettled();
+  roller(0);
+     LF.move(0);
+     LB.move(127);
+     RF.move(0);
+     RB.move(127);
+     delay(1200);
+     LF.move(-100);
+     LB.move(100);
+     RF.move(-100);
+     RB.move(100);
+     delay(800);
+     rack.move(RACK_UP,127,7).withGain(0.1).withTol(30);
+     roller(-0.3,50);
+     delay(500);
+     chassis.left(50);
+     chassis.right(50);
+     roller(-0.2,100);
+     delay(800);
+     chassis.left(30);
+     chassis.right(30);
+     rack.waitUntilSettled();
+     rack.move(RACK_DOWN,127,8).withTol(20);
+     roller(-70);
+     chassis.lock();
+     chassis.drive(-550,60,2).withAngle(270,50).withTol(40).waitUntilSettled();
+     chassis.strafe(1900, 75).withSlop(-520).withTol(40).waitUntilSettled();
+     chassis.left(-70);
+     chassis.right(-70);
+     chassis.lock();
+     delay(800);
+     roller(127);
+     chassis.drive(4050,75,2).withAngle(182,60).withTurnGain(5,0.3,3).withTol(40).waitUntilSettled();
+     rack.move(2000, 127).withTol(0);
+     delay(300);
+     chassis.turn(270,70).withTol(10).waitUntilSettled();
+     rack.move(RACK_DOWN, 127).withTol(0);
+     chassis.drive(1300,100,2).withAngle(270,50).withTol(40);
+     delay(100);
+     arm.tower(1);
+     chassis.waitUntilSettled();
+     roller(-80);
+     delay(300);
+     chassis.drive(-100,127,2).withAngle(270,50).withTol(40).waitUntilSettled();
+     LF.move(90);
+     LB.move(-127);
+     RF.move(90);
+     RB.move(-127);
+     delay(800);
+
+     roller(127);
+     arm.zero();
+     delay(1500);
+     chassis.left(100);
+     chassis.right(100);
+     delay(400);
+     rack.move(RACK_UP,127,7).withGain(0.1).withTol(30);
+     chassis.left(50);
+     chassis.right(50);
+     roller(-0.4,50);
+     delay(500);
+
+     roller(-0.2,100);
+     delay(500);
+     chassis.left(30);
+     chassis.right(30);
+     rack.waitUntilSettled();
+     rack.move(RACK_DOWN,127,8).withTol(20);
+     roller(-70);
+     chassis.lock();
+     chassis.drive(-4100,127,2).withAngle(275, 50).withTol(50).waitUntilSettled();
+     roller(127);
+     LF.move(100);
+     LB.move(-100);
+     RF.move(100);
+     RB.move(-100);
+     delay(400);
+     chassis.strafe(-1700,75,2).withTol(60).waitUntilSettled();
+
+
+     chassis.drive(1000,80,2).withAngle(270,50).withTol(50).waitUntilSettled();
+          delay(800);
+          arm.tower(2);
+          delay(800);
+          chassis.drive(400,127,2).withAngle(270, 50).withTol(20).waitUntilSettled();
+          roller(-90);
+          delay(300);
+          chassis.drive(-520,127,2).withAngle(270, 50).withTol(50).waitUntilSettled();
+          delay(300);
+          arm.zero();
+          roller(127);
+
+
+
+     chassis.turn(358,100).withTol(10).waitUntilSettled();
+     roller(127);
+     chassis.drive(1100,80,2).withAngle(0,50).withTol(40).waitUntilSettled();
+     delay(500);
+     arm.tower(1);
+     chassis.turn(35,70).withTol(10).waitUntilSettled();
+     chassis.drive(300,60,2).withAngle(35,50).withTol(40).waitUntilSettled();
+     roller(-80);
+     delay(300);
+     chassis.drive(-400,80,2).withAngle(35,50).withTol(40).waitUntilSettled();
+     arm.zero();
+     chassis.turn(0,90).withTol(10).waitUntilSettled();
+     roller(127);
+     chassis.drive(2000,127,2).withAngle(0,50).withTol(30).waitUntilSettled();
+     arm.tower(2);
+     delay(500);
+     chassis.turn(315,127).withTol(10).waitUntilSettled();
+     chassis.drive(700,90,2).withAngle(315,50).withTol(40).waitUntilSettled();
+     roller(-90);
+     delay(300);
+     chassis.drive(-400,80,2).withAngle(315,50).withTol(40);
+     delay(300);
+     arm.zero();
+     chassis.waitUntilSettled();
+
+
+
+
+     roller(127);
+  delay(100000);
+  arm.move(1.05, 127);
+  delay(800);
+  arm.zero();
+  odom.reset();
+  delay(800);
+  arm.move(1.05, 127);
+  chassis.lock();
+  arm.waitUntilSettled();
+
 }
 
-void test()
-{
-  // rob.base.setPID(ANGLE, 6, 0, 4); //30 degrees
-  // rob.base.turnUntil(30, 10000, 70);
-  //  rob.base.moveToUntil(12, 10000, 100);
-  // rob.base.setPID(ANGLE, 1.8, 0, 4);
-  // rob.base.turnUntil(90, 10000, 127);
-  //rob.tray.setPIDState(ON);
-  // rob.tray.setPIDState(ON);
-  // // rob.intake.move(-63);
-  // rob.tray.setPIDState(ON);
-  // rob.intake.move(63);
-  // rob.tray.moveToUntil(4000);
-  // rob.base.moveToUntil(-15, 1700, 100);
-  // rob.intake.move(-127);
-  // rob.intake.move(0);
-  // rob.intake.moveToUntil(70);
-  // delay(300);
-  // rob.intake.move(0);
-  // delay(500);
+void skills2() {
 
-  // rob.intake.moveToUntil(rob.intake.getSensorVal() + 600, 500, 200);
-  // // rob.intake.move(0);
-  // // rob.intake.move(70);
-  // // delay(400);
-  // // rob.intake.move(0);
-  // // delay(500);
-  // rob.intake.setPIDState(OFF);
-  // // rob.intake.move(50);
-  //
-  // rob.tray.moveToUntil(2000, 1200, 127);
-  // rob.intake.move(50);
-  // rob.tray.moveToUntil(3800, 1500, 80);
-  // rob.base.moveToUntil(-15, 1700, 100);
-  // rob.base.moveToUntil(120, 9000, 80);
 }
 
-void CV2(int color = 1)
-{
-  rob.intake.setPIDState(OFF);
-  rob.tray.setPIDState(ON);
-  rob.lift.setPIDState(ON);
-  //rob.intake.setPIDState(OFF);
-  rob.base.moveToUntil(12, 1000, 100);
-  //rob.lift.moveTo(-1400);
-  rob.tray.moveToUntil(1000, 1200, 127);
-  rob.tray.setPIDState(OFF);
-  rob.lift.moveTo(100);
-  delay(1000);
-  rob.intake.setSlow(SLOW_NORMAL);
-  rob.intake.move(0);
-  rob.intake.move(-127);
-  rob.base.moveToUntil(34, 3000, 80);
-  //rob.intake.move(0);
-  // rob.base.moveToUntil(-20, 2000, 80);
-  rob.base.moveToUntil(-24, 1200, 100);
-  // rob.base.moveToUntil(-5, 1000, 80);
-  // rob.base.moveToUntil(0, 50);
-  //rob.intake.move(0);
-  rob.base.turnUntil(color * 120, 1300, 110);
-  rob.base.moveToUntil(15, 1700, 100);
+void skills3() {
 
-  rob.intake.move(0);
-
-  // rob.base.moveToUntil(1000, 4000, 70);
-  //rob.intake.moveToUntil(rob.intake.getSensorVal() - 800, 1000, 70);
-  rob.intake.moveToUntil(rob.intake.getSensorVal() + 600, 500, 200);
-  // rob.intake.move(0);
-  // rob.intake.move(70);
-  // delay(400);
-  // rob.intake.move(0);
-  // delay(500);
-  rob.intake.setPIDState(OFF);
-  // rob.intake.move(50);
-
-  rob.tray.moveToUntil(2000, 1200, 127);
-  rob.intake.move(50);
-  rob.tray.moveToUntil(3800, 1500, 80);
-  rob.base.moveToUntil(-15, 1700, 100);
-  //rob.intake.move(-63);
-  // 14800ms up to here
-  delay(2000);
-}
-
-void google(int color = 1)
-{
-  rob.intake.setPIDState(OFF);
-  rob.tray.setPIDState(ON);
-  rob.lift.setPIDState(ON);
-  rob.base.setPID(ANGLE, 2, 0, 0.5);
-  rob.base.setPID(DRIVE, 40, 0, 2);
-  //rob.intake.setPIDState(OFF);
-  rob.base.moveToUntil(12, 1000, 100);
-  //rob.lift.moveTo(-1400);
-  rob.tray.moveToUntil(1000, 1200, 127);
-  rob.tray.setPIDState(OFF);
-  rob.lift.moveTo(100);
-  delay(1000);
-  rob.intake.setSlow(SLOW_NORMAL);
-  rob.intake.move(0);
-  rob.intake.move(-127);
-  rob.base.moveToUntil(34, 3000, 80);
-  //rob.intake.move(0);
-  // rob.base.moveToUntil(-20, 2000, 80);
-  rob.base.moveToUntil(-24, 1200, 100);
-  // rob.base.moveToUntil(-5, 1000, 80);
-  // rob.base.moveToUntil(0, 50);
-  //rob.intake.move(0);
-  rob.base.turnUntil(color * 120, 1300, 110);
-  rob.base.moveToUntil(15, 1700, 100);
-
-  rob.intake.move(0);
-
-  // rob.base.moveToUntil(1000, 4000, 70);
-  //rob.intake.moveToUntil(rob.intake.getSensorVal() - 800, 1000, 70);
-  rob.intake.moveToUntil(rob.intake.getSensorVal() + 600, 5000, 100);
-  // rob.intake.move(0);
-
-  rob.intake.move(50);
-
-  rob.tray.moveToUntil(4000, 2500, 80);
-  rob.base.moveToUntil(-15, 1700, 100);
-  //rob.intake.move(-63);
-  // 14800ms up to here
-  delay(2000);
-}
-
-void deploy()
-{
-  // // rob.lift.moveTo(100);
-
-  rob.intake.setPIDState(ON);
-  rob.intake.moveToUntil(rob.intake.getSensorVal() + 200, 2000, 50);
-  rob.tray.moveToUntil(2000, 1300, 127);
-  rob.intake.setPIDState(OFF);
-  rob.intake.move(30);
-  rob.tray.moveToUntil(3700, 3000, 40);
-  rob.base.moveToUntil(2, 200, 80);
-  rob.base.moveToUntil(-10, 10000, 60);
-
-  // WORKING 5 CUBE
-  // rob.intake.move(40);
-  // rob.tray.moveToUntil(3800, 2000, 127);
-  // rob.intake.move(127);
-  // rob.base.moveToUntil(-15, 1700, 60);
-
-  // 8 cube sketch
-  //   rob.intake.move(30);
-  //   rob.tray.moveToUntil(3800, 3000, 100);
-  //   rob.intake.move(127);
-  //   rob.base.moveToUntil(-15, 1700, 60);
-}
-void states()
-{
-  rob.intake.setPIDState(OFF);
-  rob.tray.setPIDState(ON);
-  rob.lift.setPIDState(ON);
-  //rob.intake.setPIDState(OFF);
-  rob.base.setPID(DRIVE, 20, 0, 2.0);
-  rob.base.moveToUntil(10, 800, 127);
-  // rob.base.moveToUntil(10, 1500, 127);
-  rob.intake.move(127);
-  rob.lift.moveTo(-1700);
-  rob.base.moveToUntil(-10, 800, 127);
-  // rob.base.moveToUntil(-6, 2000, 127);
-  rob.lift.moveTo(600);
-  rob.intake.move(-127);
-  delay(1000);
-  rob.base.setPID(DRIVE, 40, 0, 2.0);
-  rob.base.moveToUntil(22, 2000, 90);
-
-  // rob.base.moveToUntil(12, 1000, 100);
-}
-
-void statestest()
-{
-
-  // rob.lift.setPIDState(ON);
-  // rob.lift.moveTo(-2000);
-  // rob.base.moveToUntil(100, 20000, 127);
-
-  rob.base.setPID(DRIVE, 20, 0, 2.0);
-  rob.intake.move(-127);
-
-  rob.base.moveToUntil(20, 1800, 90);
-  // rob.base.setPID(ANGLE, 4.5, 0, 2);
-  rob.base.setPID(ANGLE, 8, 0, 2);
-  rob.base.turnUntil(-50, 1500, 127);
-  rob.base.moveToUntil(-27, 1600, 127);
-  rob.base.turnUntil(50, 1500, 127);
-  rob.base.moveToUntil(-5, 500, 127);
-
-  //top turn working
-  rob.base.moveToUntil(43, 3000, 90);
-  rob.base.moveToUntil(-22, 2000, 127);
-  rob.base.setPID(ANGLE, 3, 0, 1);
-  rob.base.turnUntil(120, 2000, 127);
-  rob.base.moveToUntil(15, 1700, 100);
-}
-
-void statestest2()
-{
-  rob.tray.setPIDState(ON);
-  rob.lift.setPIDState(ON);
-  rob.base.setPID(DRIVE, 20, 0, 2.0);
-
-  // rob.intake.setPIDState(OFF);
-  rob.intake.move(-127);
-  // rob.base.moveToUntil(20, 1500, 100);
-  // rob.base.setPID(ANGLE, 8, 0, 2);
-  // rob.base.turnUntil(-50, 1500, 127);
-  // rob.base.moveToUntil(-27, 1300, 127);
-  // rob.base.turnUntil(50, 1500, 127);
-  // rob.base.moveToUntil(-5, 500, 127);
-
-  rob.base.moveToUntil(34, 2700, 75);
-  rob.base.moveToUntil(-16, 1150, 127);
-  rob.intake.move(0);
-  rob.base.setPID(ANGLE, 3, 0, 1);
-  rob.tray.moveTo(1700);
-  rob.intake.moveTo(rob.intake.getSensorVal() + 300);
-  rob.base.turnUntil(120, 1600, 127);
-  rob.tray.moveTo(2400);
-  rob.base.moveToUntil(15, 950, 100);
-  rob.intake.setPIDState(OFF);
-  rob.intake.move(100);
-  rob.tray.moveToUntil(4600, 1200, 63);
-  rob.intake.move(127);
-  rob.base.moveToUntil(-10, 10000, 63);
-}
-
-void statesnew()
-{
-  rob.tray.setPIDState(ON);
-  rob.lift.setPIDState(ON);
-  rob.intake.setPIDState(OFF);
-
-  rob.base.setPID(DRIVE, 20, 0, 2.0);
-  rob.intake.move(-127);
-
-  rob.base.moveToUntil(20, 1500, 100);
-  rob.base.setPID(ANGLE, 8, 0, 2);
-  rob.base.turnUntil(-50, 1500, 127);
-  rob.base.moveToUntil(-27, 1300, 127);
-  rob.base.turnUntil(50, 1500, 127);
-  rob.base.moveToUntil(-5, 500, 127);
-  rob.intake.move(-127);
-  // rob.base.setPID(DRIVE, 20, 0, 2.0);
-  rob.base.moveToUntil(34, 2500, 80);
-  rob.base.moveToUntil(-12, 1200, 127);
-  rob.intake.move(0);
-  rob.base.setPID(ANGLE, 3, 0, 1);
-  rob.tray.moveTo(1700);
-  rob.intake.moveTo(rob.intake.getSensorVal() + 300);
-  rob.base.turnUntil(120, 1800, 127);
-  rob.tray.moveTo(2500);
-  rob.base.setPID(DRIVE, 40, 0, 2.0);
-  rob.base.moveToUntil(10, 800, 127);
-  rob.intake.setPIDState(OFF);
-  rob.intake.move(63);
-  // rob.tray.moveToUntil(3000, 700, 127);
-  rob.tray.moveToUntil(4600, 1000, 63);
-  rob.intake.move(127);
-  rob.base.moveToUntil(-10, 10000, 63);
-}
-
-void testturn()
-{
-  rob.base.setPID(ANGLE, 5, 0, 2);
-  rob.base.turnUntil(-40, 3000, 127);
-}
-
-void testtray()
-{
-  rob.tray.setPIDState(OFF);
-  rob.tray.moveTo(1700);
-}
-
-void testsmooth()
-{
-  rob.base.smoothDriveToPointTIME(13, 20, 0.6, 10000);
-}
-
-void autonomous()
-{
-  init();
-  // test();
-  // states();
-  // testturn();
-  // testtray();
-  // statestest2();
-  // bigAuton();
-  // CV2(-1); //blue
-  // CV2(1); //red
-  testsmooth();
 }
