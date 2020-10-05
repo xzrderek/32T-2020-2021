@@ -14,26 +14,26 @@ bool Odom::isRunning = false;
 
 int Odom::currentL = 0, Odom::currentR = 0, Odom::currentM = 0;
 int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastDeltaL = 0, Odom::lastDeltaR = 0, Odom::lastDeltaM = 0;
-int Odom::currentLF = 0, Odom::currentRF = 0, Odom::currentLB = 0, Odom::currentRB = 0;
+double Odom::currentLF = 0, Odom::currentRF = 0, Odom::currentLB = 0, Odom::currentRB = 0;
 
 double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;
 double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0;
 
 double Odom::output = 0, Odom::Desiredtheta = 0, Odom::DesiredX = 0, Odom::DesiredY = 0;
 
-int * Odom::getLF() {
+double * Odom::getLF() {
   return &currentLF;
 }
 
-int * Odom::getRF() {
+double * Odom::getRF() {
   return &currentRF;
 }
 
-int * Odom::getLB() {
+double * Odom::getLB() {
   return &currentLB;
 }
 
-int * Odom::getRB() {
+double * Odom::getRB() {
   return &currentRB;
 }
 
@@ -144,10 +144,10 @@ void Odom::run() {
     lastDeltaR = REncoder.get_value();
     lastDeltaM = MEncoder.get_value();
 
-    currentLB = (int) LB_get_position();
-    currentLF = (int) LF_get_position();
-    currentRB = (int) RB_get_position();
-    currentRF = (int) RF_get_position();
+    currentLB = LB_get_position();
+    currentLF = LF_get_position();
+    currentRB = RB_get_position();
+    currentRF = RF_get_position();
 
     pros::delay(10);
   }
