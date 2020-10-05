@@ -258,7 +258,6 @@ Chassis& Chassis::smartstrafe(double direction_, double theta_, double drivespee
   return *this;
 }
 
-// Use middle trakcing wheel to acheive smart strafe
 Chassis& Chassis::strafe(double x, double y, int speed_, double rate_) {
   currTarget = 0;
   if(target.size() != 1) target.resize(1);
@@ -735,11 +734,11 @@ void Chassis::run() {
 
       case STRAFING_XDRIVE: {
         double x, y;
-        # if 0 // using tracking wheel
-        Vector2 v0 = {(double)(*odomL + *odomR ) / 2, (double)*odomM};
+        # if 1 // using absolute position
+        Vector2 v0 = {*posX, *posY};
         Vector2 v = xdriveXform(v0);
         x, y = v.x, v.y;
-        #else // using ADI
+        #else // using motor
         x = (LF.get_position() - RB.get_position()) / 2 ;
         y = (LB.get_position() - RF.get_position()) / 2;
         #endif

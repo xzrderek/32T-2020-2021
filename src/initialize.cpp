@@ -20,7 +20,16 @@ void initialize() {
 
   // Class Initialization
   Odom odom;
-  Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY());
+
+  //tracking wheel version. using IMU angle
+  Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getPosX(), odom.getPosY());
+  
+  //tracking wheel version
+  //Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getPosHeading(), odom.getPosX(), odom.getPosY());
+  
+  //IMU version
+  //Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY());
+
   // Rack rack;
   // Arm arm;
   Display Disp;
@@ -58,13 +67,16 @@ void initialize() {
       .addInfo("Middle", 'i', odom.getM())
       .addInfo("Deg Theta", 'd', odom.getThetaDeg())
       .addInfo("Rad Theta", 'd', odom.getThetaRad())
-      .addInfo("x1-LF", 'd', odom.getLF())
-      .addInfo("y1-RF", 'd', odom.getRF())
-      .addInfo("y2-LB", 'd', odom.getLB())
-      .addInfo("x2-RB", 'd', odom.getRB());
+      .addInfo("X", 'd', odom.getX())
+      .addInfo("Y", 'd', odom.getY())
+      .addInfo("Pos Heading", 'd', odom.getPosHeading())
+      .addInfo("Pos X", 'd', odom.getPosX())
+      .addInfo("Pos Y", 'd', odom.getPosY())
+      .addInfo("X1 LF", 'd', odom.getLF())
+      .addInfo("Y1 RF", 'd', odom.getRF())
+      .addInfo("Y2 LB", 'd', odom.getLB())
+      .addInfo("X2 RB", 'd', odom.getRB());
 
-      // .addInfo("X", 'd', odom.getX())
-      // .addInfo("Y", 'd', odom.getY())
 
   // Disp.addInfo("Rack", 'i', rack.getPot())
   //     .addInfo("Arm", 'd', arm.getPos())

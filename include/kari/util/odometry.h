@@ -3,6 +3,17 @@
 
 extern pros::ADIEncoder LEncoder, REncoder, MEncoder;
 
+class Position
+{
+public:
+  Position() : X(0), Y(0), heading(0) {}
+  Position(double x, double y, double angle) : X(x), Y(y), heading(angle) {}
+  double X = 0, Y = 0, heading = 0;
+  double distanceToPoint(Position p1)
+  {
+    return sqrt(sqr(p1.X - X) + sqr(p1.Y - Y));
+  }
+};
 class Odom {
   public:
 
@@ -24,6 +35,11 @@ class Odom {
     double * getX();
     double * getY();
 
+    // tracking wheel version
+    double * getPosX();
+    double * getPosY();
+    double * getPosHeading();
+
     Odom& calibrateGyro();
     Odom& zero();
     Odom& reset();
@@ -42,4 +58,8 @@ class Odom {
     static double thetaRad, thetaDeg, offset, posX, posY;
 
     static double output, DesiredX, DesiredY, Desiredtheta;
+
+    static double wheelWidth;
+
+    static Position pos, t_pos;
 };
