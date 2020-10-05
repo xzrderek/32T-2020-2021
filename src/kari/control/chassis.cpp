@@ -305,10 +305,10 @@ void Chassis::reset() {
   RF.move_velocity(0);
   RB.move_velocity(0);
 
-  // LF.tare_position();
-  // LB.tare_position();
-  // RF.tare_position();
-  // RB.tare_position();
+  LF.tare_position();
+  LB.tare_position();
+  RF.tare_position();
+  RB.tare_position();
 }
 
 void Chassis::lock() {
