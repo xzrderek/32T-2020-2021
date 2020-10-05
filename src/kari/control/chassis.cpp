@@ -828,6 +828,12 @@ void Chassis::run() {
         // std::cout << target[currTarget].x << std::endl;
         // std::cout << LEncoder.get_value() << std::endl;
 
+        std::cout << "XError: " << driveError << ", Drive Output: " << driveOutput << std::endl;
+        std::cout << "YError: " << driveErrorY << ", Drive Output: " << driveOutputY << std::endl;
+        std::cout << "LF: " << LF.get_position() << "RB: " << RB.get_position() << std::endl;
+        std::cout << "LB: " << LB.get_position() << "RF: " << RF.get_position() << std::endl;
+
+
         break;
       }
 
@@ -835,11 +841,6 @@ void Chassis::run() {
         break;
       }
     }
-
-    std::cout << "XError: " << driveError << ", Drive Output: " << driveOutput << std::endl;
-    std::cout << "YError: " << driveErrorY << ", Drive Output: " << driveOutputY << std::endl;
-    std::cout << "RF: " << RF.get_position() << "RB: " << RB.get_position() << std::endl;
-    std::cout << "LF: " << LF.get_position() << "LB: " << LB.get_position() << std::endl;
 
     // std::cout << "x: " << v.x << ", y: " << v.y << std::endl;
 
