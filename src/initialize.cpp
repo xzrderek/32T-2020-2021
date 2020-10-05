@@ -58,12 +58,13 @@ void initialize() {
       .addInfo("Middle", 'i', odom.getM())
       .addInfo("Deg Theta", 'd', odom.getThetaDeg())
       .addInfo("Rad Theta", 'd', odom.getThetaRad())
-      .addInfo("X", 'd', odom.getX())
-      .addInfo("Y", 'd', odom.getY())
       .addInfo("x1-LF", 'd', odom.getLF())
       .addInfo("y1-RF", 'd', odom.getRF())
       .addInfo("y2-LB", 'd', odom.getLB())
       .addInfo("x2-RB", 'd', odom.getRB());
+
+      // .addInfo("X", 'd', odom.getX())
+      // .addInfo("Y", 'd', odom.getY())
 
   // Disp.addInfo("Rack", 'i', rack.getPot())
   //     .addInfo("Arm", 'd', arm.getPos())
