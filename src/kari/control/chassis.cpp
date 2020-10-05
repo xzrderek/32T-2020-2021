@@ -265,10 +265,12 @@ Chassis& Chassis::strafe(double x, double y, int speed_, double rate_) {
   initL = *odomL;
   initR = *odomR;
   initM = *odomM;
-  Vector2 v0 = {x, y};
-  Vector2 v = xdriveXform(v0);
-  target[0].x = v.x;
-  target[0].y = v.y;
+  // Vector2 v0 = {x, y};
+  // Vector2 v = xdriveXform(v0);
+  // target[0].x = v.x;
+  // target[0].y = v.y;
+  target[0].x = x;
+  target[0].y = y;
   target[0].speedDrive = speed_;
   target[0].rateDrive = rate_;
   isSettled = false;
