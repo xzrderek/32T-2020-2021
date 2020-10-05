@@ -10,7 +10,7 @@ pros::Imu Imu_L(20), Imu_R(3);
 
 bool Odom::isRunning = false;
 
-int Odom::currentL = 0, Odom::currentR = 0, Odom::currentM;
+int Odom::currentL = 0, Odom::currentR = 0, Odom::currentM = 0;
 int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastDeltaL = 0, Odom::lastDeltaR = 0, Odom::lastDeltaM = 0;
 
 double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;

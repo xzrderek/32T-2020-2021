@@ -703,12 +703,24 @@ void Chassis::run() {
       }
 
       case STRAFING_DIST: {
+        double x = (*odomL + *odomR ) / 2;
+        double y = *odomM;
         double x0 = (initL + initR ) / 2;
         double y0 = initM;
-        target[currTarget].theta = atan2( target[currTarget].y - y0, target[currTarget].x - x0 ) * ( 180 / PI );
-        double t_angle = ( target[currTarget].theta - 45) * PI / 180;
+        
+        // target[currTarget].theta = atan2( target[currTarget].y - y0, target[currTarget].x - x0 ) * ( 180 / PI );
+        // double t_angle = ( target[currTarget].theta - 45) * PI / 180;
 
-        driveError = sqrt( pow( target[currTarget].x - x0, 2) + pow( target[currTarget].y - y0, 2) );
+        angle = atan2( target[currTarget].y - y, target[currTarget].x - x) * ( 180 / PI );
+        if (abs(angle) > 5) {
+          target[currTarget].theta = (angle - 45) * PI / 180;
+        } else {
+
+
+        }
+ 
+ 
+        driveError = sqrt( pow( target[currTarget].x - x, 2) + pow( target[currTarget].y - y, 2) );
 
         driveIntegral += driveError;
         if( driveIntegral > kI_Windup ) driveIntegral = kI_Windup;
@@ -735,7 +747,7 @@ void Chassis::run() {
         if(driveSlewOutput > target[currTarget].speedDrive) driveSlewOutput = target[currTarget].speedDrive;
         if(driveSlewOutput < -target[currTarget].speedDrive) driveSlewOutput = -target[currTarget].speedDrive;
 
-        if(driveError < tolerance && driveError > -tolerance && turnError < tolerance && turnError > -tolerance) {
+        if(driveError < tolerance && driveError > -tolerance) {
           if(target.size() - 1 == currTarget) {
             clearArr();
             isUsingPoint = false;
@@ -754,8 +766,13 @@ void Chassis::run() {
 
         LF.move(totOutput1);
         LB.move(totOutput2);
-        RF.move(totOutput2);
-        RB.move(totOutput1);
+        RF.move(-totOutput2);
+        RB.move(-totOutput1);
+      
+        printf("%lf", driveError);
+        // std::cout << driveError << std::endl;
+        // std::cout << target[currTarget].x << std::endl;
+        // std::cout << LEncoder.get_value() << std::endl;
 
         break;
       }

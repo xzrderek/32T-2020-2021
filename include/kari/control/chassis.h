@@ -187,7 +187,7 @@ class Chassis {
     Chassis& smartstrafe(double direction_, double theta_, double drivespeed_ = 80, double turnspeed_ = 50, double rate_ = 4, double rate2_ = 4);
 
     /*
-    Strafe the robot to point (x, y)
+    Strafes the robot to point relative (x, y) with no change in heading
     */
     Chassis& strafe(double x_, double y_, int speed_, double rate_);
 
