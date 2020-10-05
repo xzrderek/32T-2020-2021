@@ -305,10 +305,10 @@ void Chassis::reset() {
   RF.move_velocity(0);
   RB.move_velocity(0);
 
-  LF.tare_position();
-  LB.tare_position();
-  RF.tare_position();
-  RB.tare_position();
+  // LF.tare_position();
+  // LB.tare_position();
+  // RF.tare_position();
+  // RB.tare_position();
 }
 
 void Chassis::lock() {
@@ -734,12 +734,16 @@ void Chassis::run() {
       }
 
       case STRAFING_XDRIVE: {
-        // Vector2 v0 = {(double)(*odomL + *odomR ) / 2, (double)*odomM};
-        // Vector2 v = xdriveXform(v0);
-
-        double x = (LF.get_position() - RB.get_position());
-        double y = (LB.get_position() - RF.get_position());
-
+        double x, y;
+        # if 1 // using tracking wheel
+        Vector2 v0 = {(double)(*odomL + *odomR ) / 2, (double)*odomM};
+        Vector2 v = xdriveXform(v0);
+        x, y = v.x, v.y;
+        #else // using ADI
+        x = (LF.get_position() - RB.get_position()) / 2 ;
+        y = (LB.get_position() - RF.get_position()) / 2;
+        #endif
+        
         // for x
         driveError = target[currTarget].x - x;
 
