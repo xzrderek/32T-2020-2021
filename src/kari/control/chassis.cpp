@@ -735,7 +735,7 @@ void Chassis::run() {
 
       case STRAFING_XDRIVE: {
         double x, y;
-        # if 1 // using tracking wheel
+        # if 0 // using tracking wheel
         Vector2 v0 = {(double)(*odomL + *odomR ) / 2, (double)*odomM};
         Vector2 v = xdriveXform(v0);
         x, y = v.x, v.y;
@@ -743,7 +743,7 @@ void Chassis::run() {
         x = (LF.get_position() - RB.get_position()) / 2 ;
         y = (LB.get_position() - RF.get_position()) / 2;
         #endif
-        
+
         // for x
         driveError = target[currTarget].x - x;
 
