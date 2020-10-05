@@ -6,7 +6,7 @@
 
 pros::ADIEncoder LEncoder(1, 2, true),
                  REncoder(7, 8, true),
-                 MEncoder(3, 4, true);
+                 MEncoder(3, 4);
 
 pros::Imu Imu_L(20), Imu_R(3);
 

@@ -302,7 +302,7 @@ void skills2()
 
 void skills1()
 {
-  Vector2 point = {500, 500};
+  // Vector2 point = {500, 500};
   chassis.lock();
   odom.zero();
   // chassis.drive(-550, 60, 2).withAngle(270, 50).withTol(40).waitUntilSettled();
@@ -313,9 +313,11 @@ void skills1()
   // chassis.smartstrafe(45, 90).waitUntilSettled();
   // chassis.strafe(700, 80).withTol(40).waitUntilSettled();
   // chassis.drive(500, 80, 2).withAngle(35, 50).withTol(40).waitUntilSettled();
-  chassis.strafe(1500, 0, 80, 2).withTol(40).waitUntilSettled();
-  chassis.turn(45, 100).withTol(5).waitUntilSettled();
-  chassis.drive(300, 127).withTol(40).waitUntilSettled();
+  std::cout << "skills 1 started" << std::endl;
+  chassis.strafexdrive(12, 8, 80, 2).withGain(20).withTol(10).waitUntilSettled();
+  chassis.turn(0, 127).withTol(5).waitUntilSettled();
+  // chassis.turn(45, 100).withTol(5).waitUntilSettled();
+  // chassis.drive(300, 127).withTol(40).waitUntilSettled();
   // chassis.turn(0, 127).waitUntilSettled();
   // chassis.withAngle().drive();
 

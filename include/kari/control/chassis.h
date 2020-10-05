@@ -191,7 +191,7 @@ class Chassis {
     /*
     Strafes the robot to point relative (x, y) with no change in heading
     */
-    Chassis& strafe(double x_, double y_, int speed_, double rate_);
+    Chassis& strafexdrive(double x_, double y_, int speed_, double rate_);
 
     /*
     Delays the calling thread until the robot has settled.

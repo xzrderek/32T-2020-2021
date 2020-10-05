@@ -258,7 +258,7 @@ Chassis& Chassis::smartstrafe(double direction_, double theta_, double drivespee
   return *this;
 }
 
-Chassis& Chassis::strafe(double x, double y, int speed_, double rate_) {
+Chassis& Chassis::strafexdrive(double x, double y, int speed_, double rate_) {
   currTarget = 0;
   if(target.size() != 1) target.resize(1);
   initL = *odomL;
@@ -341,6 +341,7 @@ void Chassis::start(void* ignore) {
     pros::delay(500);
     Chassis *that = static_cast<Chassis*>(ignore);
     that -> run();
+    // std::cout << "chassis start" << std::endl;
   }
 }
 
@@ -348,6 +349,7 @@ void Chassis::run() {
   isRunning = true;
 
   while(isRunning) {
+    // std::cout << "chassis running" << std::endl;
 
     if(!pros::competition::is_autonomous()) goto end;
 
@@ -737,7 +739,10 @@ void Chassis::run() {
         # if 1 // using absolute position
         Vector2 v0 = {*posX, *posY};
         Vector2 v = xdriveXform(v0);
+        std::cout << "strafing x drive" << std::endl;
         x, y = v.x, v.y;
+        std::cout << "xdrive: " << x << ", " <<y << std::endl;
+
         #else // using motor
         x = (LF.get_position() - RB.get_position()) / 2 ;
         y = (LB.get_position() - RF.get_position()) / 2;
@@ -829,8 +834,8 @@ void Chassis::run() {
 
         std::cout << "XError: " << driveError << ", Drive Output: " << driveOutput << std::endl;
         std::cout << "YError: " << driveErrorY << ", Drive Output: " << driveOutputY << std::endl;
-        std::cout << "LF: " << LF.get_position() << "RB: " << RB.get_position() << std::endl;
-        std::cout << "LB: " << LB.get_position() << "RF: " << RF.get_position() << std::endl;
+        // std::cout << "LF: " << LF.get_position() << "RB: " << RB.get_position() << std::endl;
+        // std::cout << "LB: " << LB.get_position() << "RF: " << RF.get_position() << std::endl;
 
 
         break;
