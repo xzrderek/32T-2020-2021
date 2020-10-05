@@ -92,6 +92,10 @@ void opcontrol()
 			io::driveBScorer(0);
 		}
 
+		std::cout << LF.get_position() << std::endl;
+		std::cout << RF.get_position() << std::endl;
+
+
 		// io::driveTScorer(topScorer.getOutput());
 		// io::driveBScorer(botScorer.getOutput());
 

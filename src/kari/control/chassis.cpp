@@ -26,8 +26,32 @@ double *Chassis::theta, *Chassis::posX, *Chassis::posY;
 
 double Chassis::current = 0, Chassis::initL = 0, Chassis::initR = 0, Chassis::initM = 0, Chassis::deltaL = 0, Chassis::deltaR = 0, Chassis::deltaM = 0,
 Chassis::driveError = 0, Chassis::driveIntegral = 0, Chassis::driveLast = 0, Chassis::turnError = 0, Chassis::turnIntegral = 0, Chassis::turnLast = 0,
+Chassis::driveErrorY = 0, Chassis::driveIntegralY = 0, Chassis::driveLastY = 0, Chassis::driveOutputY = 0, Chassis::driveSlewOutputY = 0,
 Chassis::driveOutput = 0, Chassis::driveOutput2 = 0, Chassis::driveOutput3 = 0, Chassis::driveOutput4 = 0, Chassis::turnOutput = 0, Chassis::driveSlewOutput = 0, Chassis::driveSlewOutput2 = 0, Chassis::driveSlewOutput3 = 0, Chassis::driveSlewOutput4 = 0 , Chassis::turnSlewOutput = 0,
 Chassis::totOutputL = 0, Chassis::totOutputR = 0;
+
+double LB_get_position() {
+  return LB.get_position();
+}
+
+double LF_get_position() {
+  return LF.get_position();
+}
+
+double RB_get_position() {
+  return RB.get_position();
+}
+
+double RF_get_position() {
+  return RF.get_position();
+}
+
+Vector2 xdriveXform(Vector2 v, double angle){
+  Vector2 n;
+  n.x = v.x * cos(angle) - v.y * sin(angle);
+  n.y = v.y * cos(angle) + v.x * sin(angle);
+  return n;
+}
 
 Chassis::Chassis() { }
 
@@ -241,13 +265,15 @@ Chassis& Chassis::strafe(double x, double y, int speed_, double rate_) {
   initL = *odomL;
   initR = *odomR;
   initM = *odomM;
-  target[0].x = x;
-  target[0].y = y;
+  Vector2 v0 = {x, y};
+  Vector2 v = xdriveXform(v0);
+  target[0].x = v.x;
+  target[0].y = v.y;
   target[0].speedDrive = speed_;
   target[0].rateDrive = rate_;
   isSettled = false;
   reset();
-  mode = STRAFING_DIST;
+  mode = STRAFING_XDRIVE;
   return *this;
 }
 
@@ -265,6 +291,9 @@ void Chassis::tarePos() {
 void Chassis::reset() {
   driveError = driveIntegral = driveLast = turnError = turnIntegral = turnLast = 0;
   driveOutput = driveSlewOutput = turnOutput = turnSlewOutput = 0;
+  totOutputL = totOutputR = 0;
+  driveErrorY = driveIntegralY = driveLastY = 0;
+  driveOutputY = driveSlewOutputY = 0;
   totOutputL = totOutputR = 0;
 
   mode = IDLE;
@@ -702,31 +731,21 @@ void Chassis::run() {
         break;
       }
 
-      case STRAFING_DIST: {
-        double x = (*odomL + *odomR ) / 2;
-        double y = *odomM;
-        double x0 = (initL + initR ) / 2;
-        double y0 = initM;
-        
-        // target[currTarget].theta = atan2( target[currTarget].y - y0, target[currTarget].x - x0 ) * ( 180 / PI );
-        // double t_angle = ( target[currTarget].theta - 45) * PI / 180;
+      case STRAFING_XDRIVE: {
+        // Vector2 v0 = {(double)(*odomL + *odomR ) / 2, (double)*odomM};
+        // Vector2 v = xdriveXform(v0);
 
-        angle = atan2( target[currTarget].y - y, target[currTarget].x - x) * ( 180 / PI );
-        if (abs(angle) > 5) {
-          target[currTarget].theta = (angle - 45) * PI / 180;
-        } else {
+        double x = (LF.get_position() - RB.get_position());
+        double y = (LB.get_position() - RF.get_position());
 
-
-        }
- 
- 
-        driveError = sqrt( pow( target[currTarget].x - x, 2) + pow( target[currTarget].y - y, 2) );
+        // for x
+        driveError = target[currTarget].x - x;
 
         driveIntegral += driveError;
-        if( driveIntegral > kI_Windup ) driveIntegral = kI_Windup;
-         else if( driveIntegral < -kI_Windup ) driveIntegral = -kI_Windup;
+        if( driveIntegral > ( kI_Windup / ( driveError * kP_drive ) ) ) driveIntegral = ( kI_Windup / ( driveError * kP_drive ) );
+         else if( driveIntegral < ( -kI_Windup / ( driveError * kP_drive ) ) ) driveIntegral = ( -kI_Windup / ( driveError * kP_drive ) );
 
-        driveOutput = ( driveError * kP_drive ) + ( driveIntegral * kI_drive ) + ( driveError - driveLast ) * kD_drive;
+        driveOutput = ( driveError * kP_drive ) + ( driveError - driveLast ) * kD_drive;
 
         driveLast = driveError;
 
@@ -747,7 +766,36 @@ void Chassis::run() {
         if(driveSlewOutput > target[currTarget].speedDrive) driveSlewOutput = target[currTarget].speedDrive;
         if(driveSlewOutput < -target[currTarget].speedDrive) driveSlewOutput = -target[currTarget].speedDrive;
 
-        if(driveError < tolerance && driveError > -tolerance) {
+        // for Y
+        driveErrorY = target[currTarget].y - y;
+
+        driveIntegralY += driveErrorY;
+        if( driveIntegralY > ( kI_Windup / ( driveErrorY * kP_drive ) ) ) driveIntegralY = ( kI_Windup / ( driveErrorY * kP_drive ) );
+         else if( driveIntegralY < ( -kI_Windup / ( driveErrorY * kP_drive ) ) ) driveIntegralY = ( -kI_Windup / ( driveErrorY * kP_drive ) );
+
+        driveOutputY = ( driveErrorY * kP_drive ) + ( driveErrorY - driveLastY ) * kD_drive;
+
+        driveLastY = driveErrorY;
+
+        if(target.size() - 1 == currTarget) {
+          if(driveOutputY > 0) {
+            if(driveOutputY > driveSlewOutputY + target[currTarget].rateDrive) driveSlewOutputY += target[currTarget].rateDrive;
+              else driveSlewOutputY = driveOutputY;
+          } else if(driveOutputY < 0) {
+            if(driveOutputY < driveSlewOutputY - target[currTarget].rateDrive) driveSlewOutputY -= target[currTarget].rateDrive;
+              else driveSlewOutputY = driveOutputY;
+          }
+        } else {
+          //useless actually
+          if(target[currTarget].speedDrive > driveSlewOutputY) driveSlewOutputY += target[currTarget].rateDrive;
+          if(target[currTarget].speedDrive < driveSlewOutputY) driveSlewOutputY -= target[currTarget].rateDrive;
+        }
+
+        if(driveSlewOutputY > target[currTarget].speedDrive) driveSlewOutputY = target[currTarget].speedDrive;
+        if(driveSlewOutputY < -target[currTarget].speedDrive) driveSlewOutputY = -target[currTarget].speedDrive;
+
+        // for both
+        if(driveError < tolerance && driveError > -tolerance && driveErrorY < tolerance && driveErrorY > -tolerance) {
           if(target.size() - 1 == currTarget) {
             clearArr();
             isUsingPoint = false;
@@ -761,15 +809,15 @@ void Chassis::run() {
           }
         }
 
-        double totOutput1 = driveSlewOutput * cos(t_angle);
-        double totOutput2 = driveSlewOutput * sin(t_angle);
+        double totOutput1 = driveSlewOutput;
+        double totOutput2 = driveSlewOutputY;
 
         LF.move(totOutput1);
         LB.move(totOutput2);
         RF.move(-totOutput2);
         RB.move(-totOutput1);
-      
-        printf("%lf", driveError);
+
+        // printf("%lf", driveError);
         // std::cout << driveError << std::endl;
         // std::cout << target[currTarget].x << std::endl;
         // std::cout << LEncoder.get_value() << std::endl;
@@ -782,7 +830,12 @@ void Chassis::run() {
       }
     }
 
-    std::cout << "Error: " << driveError << ", Drive Output: " << driveOutput << std::endl;
+    std::cout << "XError: " << driveError << ", Drive Output: " << driveOutput << std::endl;
+    std::cout << "YError: " << driveErrorY << ", Drive Output: " << driveOutputY << std::endl;
+    std::cout << "RF: " << RF.get_position() << "RB: " << RB.get_position() << std::endl;
+    std::cout << "LF: " << LF.get_position() << "LB: " << LB.get_position() << std::endl;
+
+    // std::cout << "x: " << v.x << ", y: " << v.y << std::endl;
 
     end:
     pros::delay(10);

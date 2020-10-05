@@ -10,7 +10,7 @@ extern pros::ADIUltrasonic Ultrasonic;
 #define TURNING 4
 #define STRAFING 5
 #define STRAFING_SMART 6
-#define STRAFING_DIST 7
+#define STRAFING_XDRIVE 7
 
 struct Vector2 {
   double x;
@@ -28,6 +28,8 @@ struct ChassisTarget {
   double rateTurn;
   bool reverse;
 };
+
+Vector2 xdriveXform(Vector2 v, double angle=-PI/4);
 
 class Chassis {
   public:
@@ -250,6 +252,7 @@ class Chassis {
 
     static double current, initL, initR, initM, deltaL, deltaR, deltaM;
     static double driveError, driveIntegral, driveLast, turnError, turnIntegral, turnLast;
+    static double driveErrorY, driveIntegralY, driveLastY, driveOutputY, driveSlewOutputY;
     static double driveOutput, driveOutput2, driveOutput3, driveOutput4, turnOutput, driveSlewOutput, driveSlewOutput2, driveSlewOutput3, driveSlewOutput4, turnSlewOutput;
     static double totOutputL, totOutputR;
 

@@ -2,6 +2,8 @@
 #include "kari/control/chassis.h"
 #include "api.h"
 
+// extern pros::Motor LF, LB, RF, RB;
+
 pros::ADIEncoder LEncoder(1, 2, true),
                  REncoder(7, 8, true),
                  MEncoder(3, 4);
@@ -12,11 +14,28 @@ bool Odom::isRunning = false;
 
 int Odom::currentL = 0, Odom::currentR = 0, Odom::currentM = 0;
 int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastDeltaL = 0, Odom::lastDeltaR = 0, Odom::lastDeltaM = 0;
+int Odom::currentLF = 0, Odom::currentRF = 0, Odom::currentLB = 0, Odom::currentRB = 0;
 
 double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;
 double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0;
 
 double Odom::output = 0, Odom::Desiredtheta = 0, Odom::DesiredX = 0, Odom::DesiredY = 0;
+
+int * Odom::getLF() {
+  return &currentLF;
+}
+
+int * Odom::getRF() {
+  return &currentRF;
+}
+
+int * Odom::getLB() {
+  return &currentLB;
+}
+
+int * Odom::getRB() {
+  return &currentRB;
+}
 
 int * Odom::getL() {
   return &currentL;
@@ -92,6 +111,11 @@ void Odom::start(void *ignore) {
   }
 }
 
+extern double LB_get_position();
+extern double LF_get_position();
+extern double RB_get_position();
+extern double RF_get_position();
+
 void Odom::run() {
   isRunning = true;
 
@@ -119,6 +143,11 @@ void Odom::run() {
     lastDeltaL = LEncoder.get_value();
     lastDeltaR = REncoder.get_value();
     lastDeltaM = MEncoder.get_value();
+
+    currentLB = (int) LB_get_position();
+    currentLF = (int) LF_get_position();
+    currentRB = (int) RB_get_position();
+    currentRF = (int) RF_get_position();
 
     pros::delay(10);
   }

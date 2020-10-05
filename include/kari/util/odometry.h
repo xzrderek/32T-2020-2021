@@ -13,6 +13,10 @@ class Odom {
     int * getDL();
     int * getDR();
     int * getDM();
+    int * getLB();
+    int * getLF();
+    int * getRB();
+    int * getRF();
 
     double * getThetaDeg();
     double * getThetaRad();
@@ -32,7 +36,7 @@ class Odom {
 
     static int currentL, currentR, currentM;
     static int deltaL, deltaR, deltaM, lastDeltaL, lastDeltaR, lastDeltaM;
-
+    static int currentLF, currentLB, currentRF, currentRB;
     static double inertL, inertR, inertT;
     static double thetaRad, thetaDeg, offset, posX, posY;
 

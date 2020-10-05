@@ -193,3 +193,4 @@ namespace macro {
     std::cout << text << std::endl;
   }
 }
+

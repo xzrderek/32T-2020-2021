@@ -59,7 +59,9 @@ void initialize() {
       .addInfo("Deg Theta", 'd', odom.getThetaDeg())
       .addInfo("Rad Theta", 'd', odom.getThetaRad())
       .addInfo("X", 'd', odom.getX())
-      .addInfo("Y", 'd', odom.getY());
+      .addInfo("Y", 'd', odom.getY())
+      .addInfo("LF,", 'd', odom.getLF())
+      .addInfo("RF", 'd', odom.getRF());
 
   // Disp.addInfo("Rack", 'i', rack.getPot())
   //     .addInfo("Arm", 'd', arm.getPos())
