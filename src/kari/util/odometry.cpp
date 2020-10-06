@@ -13,7 +13,7 @@ pros::Imu Imu_L(20), Imu_R(3);
 bool Odom::isRunning = false;
 
 int Odom::currentL = 0, Odom::currentR = 0, Odom::currentM = 0;
-int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastDeltaL = 0, Odom::lastDeltaR = 0, Odom::lastDeltaM = 0;
+int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastL = 0, Odom::lastR = 0, Odom::lastM = 0;
 double Odom::currentLF = 0, Odom::currentRF = 0, Odom::currentLB = 0, Odom::currentRB = 0;
 
 double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;
@@ -143,12 +143,12 @@ void Odom::run() {
     currentL = LEncoder.get_value();
     currentR = REncoder.get_value();
     currentM = MEncoder.get_value();
-    deltaL = currentL- lastDeltaL;
-    deltaR = currentR - lastDeltaR;
-    deltaM = currentM - lastDeltaM;
-    lastDeltaL += deltaL;
-    lastDeltaR += deltaR;
-    lastDeltaM += deltaM;
+    deltaL = currentL- lastL;
+    deltaR = currentR - lastR;
+    deltaM = currentM - lastM;
+    lastL = currentL;
+    lastR = currentR;
+    lastM = currentM;
 
     // Use IMU to calculate position
     inertL = abs( Imu_L.get_heading() - 360 ) * PI / 180;
@@ -162,22 +162,32 @@ void Odom::run() {
     posY = posY + (( deltaL + deltaR ) / 2) * sin( thetaRad );
 
     // Use tracking wheels to calculate position
+    // http://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf
+    // https://www-users.cs.umn.edu/~stergios/papers/iros99_pioneer.pdf
     float dL = encoderDistInch(deltaL);
     float dR = encoderDistInch(deltaR);
-    float dy = encoderDistInch(deltaM);
-    float dx = avg(dR, dL);                                  
+    float dx = encoderDistInch(deltaM);
+    float dy = avg(dR, dL);
+    #if 1 // Compute angle
     float dHeading = toDeg(dR - dL) / Odom::wheelWidth;
     float avgHeading = normAngle(pos.heading + dHeading / 2.0);
     float radHeading = boundAngle(toRad(avgHeading));
     // Update current r position.
-    t_pos.heading = (t_pos.heading - dHeading); //should this be normalized???
-    t_pos.X += dx * cos(radHeading) + dy * sin(radHeading);
-    t_pos.Y += dx * sin(radHeading) - dy * cos(radHeading);
+    t_pos.heading = (t_pos.heading + dHeading); 
+    t_pos.X += dx * cos(radHeading) - dy * sin(radHeading);
+    t_pos.Y += dx * sin(radHeading) + dy * cos(radHeading);
+
     //add little vector after calculating H mech's position
     const float distToCenter = (wheelWidth / 2); //inches the center of the H mech to the center of r's rotation
-    pos.heading = normAngle(t_pos.heading + 90);
+    pos.heading = normAngle(t_pos.heading);
+    pos.X = t_pos.X + distToCenter * cos(radHeading) - distToCenter;
+    pos.Y = t_pos.Y - distToCenter * sin(radHeading);
+    #else // Use IMU angle
+    t_pos.X += dx * cos(thetaRad) - dy * sin(thetaRad);
+    t_pos.Y += dx * sin(thetaRad) + dy * cos(thetaRad);
     pos.X = t_pos.X; // + distToCenter * cos(radHeading);
     pos.Y = t_pos.Y; // + distToCenter * sin(radHeading) - distToCenter;
+    #endif
 
     // read motor poistions
     currentLB = LB_get_position();

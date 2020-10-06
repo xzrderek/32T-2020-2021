@@ -46,13 +46,6 @@ double RF_get_position() {
   return RF.get_position();
 }
 
-Vector2 xdriveXform(Vector2 v, double angle){
-  Vector2 n;
-  n.x = v.x * cos(angle) - v.y * sin(angle);
-  n.y = v.y * cos(angle) + v.x * sin(angle);
-  return n;
-}
-
 Chassis::Chassis() { }
 
 Chassis::Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_) {
@@ -75,6 +68,21 @@ Chassis& Chassis::withGain(double kP, double kI, double kD, double windUp) {
   kI_Windup = windUp;
 
   return *this;
+}
+
+// heading is the angle of the xdrive cooridate system (45)
+Vector2 Chassis::xdriveXform(Vector2 v, double heading){
+  Vector2 n;
+  // *theta is the angle of the robot turned so far
+  std::cout << "xdrive: xdrive=" << heading << ", theta=" << *theta;
+  heading = normAngle(heading + *theta);
+  double angle = boundAngle(toRad(heading));
+  std::cout << ", angle=" << heading << ", radian=" << angle << std::endl;
+
+  //angle = PI/4;
+  n.x = v.x * cos(-angle) - v.y * sin(-angle);
+  n.y = v.x * sin(-angle) + v.y * cos(-angle);
+  return n;
 }
 
 Chassis& Chassis::withTurnGain(double kP, double kI, double kD, double windUp) {
@@ -737,20 +745,22 @@ void Chassis::run() {
       case STRAFING_XDRIVE: {
         double x, y;
         # if 1 // using absolute position
-        Vector2 v0 = {*posX, *posY};
-        Vector2 v = xdriveXform(v0);
-        std::cout << "strafing x drive" << std::endl;
-        x, y = v.x, v.y;
-        std::cout << "xdrive: " << x << ", " <<y << std::endl;
-
+        Vector2 c = {*posX, *posY};
+        Vector2 t = {target[currTarget].x, target[currTarget].y};
+        std::cout << "xdrive: Original: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
+        c = xdriveXform(c);
+        t = xdriveXform(t);
+        driveError =  t.x - c.x;
+        driveErrorY = t.y - c.y;
+        std::cout << "xdrive: Current: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
         #else // using motor
         x = (LF.get_position() - RB.get_position()) / 2 ;
         y = (LB.get_position() - RF.get_position()) / 2;
+        driveError  = target[currTarget].x - x;
+        driveErrorY = target[currTarget].y - y;
         #endif
 
         // for x
-        driveError = target[currTarget].x - x;
-
         driveIntegral += driveError;
         if( driveIntegral > ( kI_Windup / ( driveError * kP_drive ) ) ) driveIntegral = ( kI_Windup / ( driveError * kP_drive ) );
          else if( driveIntegral < ( -kI_Windup / ( driveError * kP_drive ) ) ) driveIntegral = ( -kI_Windup / ( driveError * kP_drive ) );
@@ -777,8 +787,6 @@ void Chassis::run() {
         if(driveSlewOutput < -target[currTarget].speedDrive) driveSlewOutput = -target[currTarget].speedDrive;
 
         // for Y
-        driveErrorY = target[currTarget].y - y;
-
         driveIntegralY += driveErrorY;
         if( driveIntegralY > ( kI_Windup / ( driveErrorY * kP_drive ) ) ) driveIntegralY = ( kI_Windup / ( driveErrorY * kP_drive ) );
          else if( driveIntegralY < ( -kI_Windup / ( driveErrorY * kP_drive ) ) ) driveIntegralY = ( -kI_Windup / ( driveErrorY * kP_drive ) );

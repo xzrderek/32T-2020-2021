@@ -52,7 +52,7 @@ class Odom {
     static bool isRunning;
 
     static int currentL, currentR, currentM;
-    static int deltaL, deltaR, deltaM, lastDeltaL, lastDeltaR, lastDeltaM;
+    static int deltaL, deltaR, deltaM, lastL, lastR, lastM;
     static double currentLF, currentLB, currentRF, currentRB;
     static double inertL, inertR, inertT;
     static double thetaRad, thetaDeg, offset, posX, posY;

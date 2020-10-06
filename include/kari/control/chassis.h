@@ -29,14 +29,14 @@ struct ChassisTarget {
   bool reverse;
 };
 
-Vector2 xdriveXform(Vector2 v, double angle=-PI/4);
-
 class Chassis {
   public:
     Chassis();
     Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_);
     ~Chassis();
 
+    Vector2 xdriveXform(Vector2 v, double angle=45.0);
+    
     /*
     Sets the gain of the drive.
 

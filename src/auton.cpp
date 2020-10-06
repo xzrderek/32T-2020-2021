@@ -314,8 +314,12 @@ void skills1()
   // chassis.strafe(700, 80).withTol(40).waitUntilSettled();
   // chassis.drive(500, 80, 2).withAngle(35, 50).withTol(40).waitUntilSettled();
   std::cout << "skills 1 started" << std::endl;
-  chassis.strafexdrive(12, 8, 80, 2).withGain(20).withTol(10).waitUntilSettled();
-  chassis.turn(0, 127).withTol(5).waitUntilSettled();
+  chassis.turn(-45, 100).withTol(5).waitUntilSettled();
+  chassis.strafexdrive(12, 8, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  chassis.turn(45, 100).withTol(5).waitUntilSettled();
+  chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  chassis.strafexdrive(-10, 12, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  // chassis.turn(0, 127).withTol(5).waitUntilSettled();
   // chassis.turn(45, 100).withTol(5).waitUntilSettled();
   // chassis.drive(300, 127).withTol(40).waitUntilSettled();
   // chassis.turn(0, 127).waitUntilSettled();
