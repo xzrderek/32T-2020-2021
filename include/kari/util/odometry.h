@@ -55,7 +55,7 @@ class Odom {
     static int deltaL, deltaR, deltaM, lastL, lastR, lastM;
     static double currentLF, currentLB, currentRF, currentRB;
     static double inertL, inertR, inertT;
-    static double thetaRad, thetaDeg, offset, posX, posY;
+    static double thetaRad, thetaDeg, lastThetaRad, offset, posX, posY;
 
     static double output, DesiredX, DesiredY, Desiredtheta;
 

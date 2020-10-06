@@ -17,7 +17,7 @@ int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastL = 0, Odom:
 double Odom::currentLF = 0, Odom::currentRF = 0, Odom::currentLB = 0, Odom::currentRB = 0;
 
 double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;
-double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0;
+double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::lastThetaRad = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0;
 
 double Odom::output = 0, Odom::Desiredtheta = 0, Odom::DesiredX = 0, Odom::DesiredY = 0;
 
@@ -157,6 +157,8 @@ void Odom::run() {
     float y = ( sin( inertL - offset + PI ) + sin( inertR - offset + PI ) ) / 2;
     thetaRad = abs( atan2f(y, x) + PI );
     thetaDeg = thetaRad * 180 / PI;
+    float dThetaRad = thetaRad - lastThetaRad; 
+    lastThetaRad = thetaRad;
     // Calculate absolute position
     posX = posX + (( deltaL + deltaR ) / 2) * cos( thetaRad );
     posY = posY + (( deltaL + deltaR ) / 2) * sin( thetaRad );
@@ -168,8 +170,8 @@ void Odom::run() {
     float dR = encoderDistInch(deltaR);
     float dx = encoderDistInch(deltaM);
     float dy = avg(dR, dL);
-    #if 1 // Compute angle
-    float dHeading = toDeg(dR - dL) / Odom::wheelWidth;
+    #if 0 // Compute angle 
+    float dHeading = boundAngle(toRad((dR - dL) / Odom::wheelWidth;
     float avgHeading = normAngle(pos.heading + dHeading / 2.0);
     float radHeading = boundAngle(toRad(avgHeading));
     // Update current r position.
@@ -183,10 +185,14 @@ void Odom::run() {
     pos.X = t_pos.X + distToCenter * cos(radHeading) - distToCenter;
     pos.Y = t_pos.Y - distToCenter * sin(radHeading);
     #else // Use IMU angle
-    t_pos.X += dx * cos(thetaRad) - dy * sin(thetaRad);
-    t_pos.Y += dx * sin(thetaRad) + dy * cos(thetaRad);
+    float avgHeading = normAngle(thetaRad - dThetaRad / 2.0);
+    float radHeading = boundAngle(toRad(avgHeading));
+    const float distToCenter = (wheelWidth / 2);
+    t_pos.X += dx * cos(radHeading) - dy * sin(radHeading);
+    t_pos.Y += dx * sin(radHeading) + dy * cos(radHeading);
     pos.X = t_pos.X; // + distToCenter * cos(radHeading);
     pos.Y = t_pos.Y; // + distToCenter * sin(radHeading) - distToCenter;
+    // std::cout << "odom: radHeading: " << radHeading << " t_pos: " << t_pos.X << ", " << t_pos.Y << std::endl;
     #endif
 
     // read motor poistions
