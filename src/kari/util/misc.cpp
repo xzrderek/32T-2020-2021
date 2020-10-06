@@ -47,6 +47,28 @@ namespace io {
   void driveBScorer(int speed) {
     RollerB.move(speed);
   }
+
+  void score(double rot, int speed)
+  {
+    RollerT.move_relative(rot, speed);
+    pros::delay(50);
+    RollerB.move_relative(rot, speed);
+  }
+ 
+  void poop(double rot, int speed)
+  {
+    RollerT.move_relative(rot, speed);
+    pros::delay(50);
+    RollerB.move_relative(rot, -speed);
+  }
+ 
+  void down(double rot, int speed)
+  {
+    RollerT.move_relative(rot, -speed);
+    pros::delay(50);
+    RollerB.move_relative(rot, -speed);
+  }
+
 }
 
 namespace macro {
