@@ -315,9 +315,21 @@ void skills1()
   // chassis.drive(500, 80, 2).withAngle(35, 50).withTol(40).waitUntilSettled();
   // std::cout << "skills 1 started" << std::endl;
   // chassis.turn(-45, 100).withTol(5).waitUntilSettled();
-  chassis.strafexdrive(12, 8, 127, 2).withGain(20).withTol(1).waitUntilSettled();
-  chassis.turn(45, 100).withTol(5).waitUntilSettled();
+
+  // chassis.strafe(-1000, 127).withTol(40).waitUntilSettled();
+
+  // chassis.strafexdrive(8, 12, 127, 2).withGain(20).withTol(.8).waitUntilSettled();
+  // chassis.turn(45, 100).withTol(5).waitUntilSettled();
+  // chassis.strafexdrive(-8, 12, 127, 4).withGain(20).withTol(.8).waitUntilSettled();
+  // chassis.turn(-60, 127).withTol(5).waitUntilSettled();
+  // chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(.8).waitUntilSettled();
+  // chassis.turn(0, 100).withTol(5).waitUntilSettled();
+  chassis.strafexdrive(-15, 15, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  chassis.strafexdrive(15, 15, 127, 2).withGain(25).withTol(1).waitUntilSettled();
+  chassis.strafexdrive(12, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
   chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+
+  // chassis.turn(0,127).withTol(3).waitUntilSettled();
   // chassis.strafexdrive(-10, 12, 127, 2).withGain(20).withTol(1).waitUntilSettled();
   // chassis.turn(0, 127).withTol(5).waitUntilSettled();
   // chassis.turn(45, 100).withTol(5).waitUntilSettled();
@@ -325,6 +337,12 @@ void skills1()
   // chassis.turn(0, 127).waitUntilSettled();
   // chassis.withAngle().drive();
 
+  // chassis.strafe(1000, 100, 2).withTol(40).waitUntilSettled();
+  //abs pos chassis strafe xdrive below
+  // chassis.strafexdrive(-10, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  //relative pos chassis strafe xdrive, strafe left
+
+  // chassis.strafexdrive(-700, 900, 127, 2).withTol(10).waitUntilSettled();
 
   // int dlay = 200;
  
