@@ -184,15 +184,20 @@ void Odom::run() {
     pos.heading = normAngle(t_pos.heading);
     pos.X = t_pos.X + distToCenter * cos(radHeading) - distToCenter;
     pos.Y = t_pos.Y - distToCenter * sin(radHeading);
-    #else // Use IMU angle
-    float avgHeading = normAngle(thetaRad - dThetaRad / 2.0);
-    float radHeading = boundAngle(toRad(avgHeading));
-    const float distToCenter = (wheelWidth / 2);
+    #elif 1 // Use IMU angle
+    // float avgHeading = normAngle(thetaRad - dThetaRad / 2.0);
+    // float radHeading = boundAngle(toRad(avgHeading));
+    // const float distToCenter = (wheelWidth / 2);
+    float radHeading = thetaRad;
     t_pos.X += dx * cos(radHeading) - dy * sin(radHeading);
     t_pos.Y += dx * sin(radHeading) + dy * cos(radHeading);
     pos.X = t_pos.X; // + distToCenter * cos(radHeading);
     pos.Y = t_pos.Y; // + distToCenter * sin(radHeading) - distToCenter;
     // std::cout << "odom: radHeading: " << radHeading << " t_pos: " << t_pos.X << ", " << t_pos.Y << std::endl;
+    #else
+    float dist = sqrt()
+    pos.X = pos.X + dy * sin( thetaRad );
+    pos.Y = pos.Y + dy * cos( thetaRad );
     #endif
 
     // read motor poistions
