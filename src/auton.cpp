@@ -324,10 +324,10 @@ void skills1()
   // chassis.turn(-60, 127).withTol(5).waitUntilSettled();
   // chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(.8).waitUntilSettled();
   // chassis.turn(0, 100).withTol(5).waitUntilSettled();
-  chassis.strafexdrive(-15, 15, 127, 2).withGain(20).withTol(1).waitUntilSettled();
-  chassis.strafexdrive(15, 15, 127, 2).withGain(25).withTol(1).waitUntilSettled();
-  chassis.strafexdrive(12, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
-  chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  // chassis.strafexdrive(-15, 15, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  chassis.strafexdrive(12, 12, 127, 2).withGain(20).withAngle(30, 60, 4).withTol(1).waitUntilSettled();
+  // chassis.strafexdrive(12, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  // chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
 
   // chassis.turn(0,127).withTol(3).waitUntilSettled();
   // chassis.strafexdrive(-10, 12, 127, 2).withGain(20).withTol(1).waitUntilSettled();

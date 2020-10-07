@@ -748,8 +748,19 @@ void Chassis::run() {
       }
 
       case STRAFING_XDRIVE: {
+
+        // Compute turnError
+        turnError = ( normAngle(target[currTarget].theta) - normAngle(*theta) );
+        // turnError = atan2( sin( turnError ), cos( turnError ) );
+        // turnError = turnError * 180 / PI;
+        // PID for turn
+        turnOutput = ( turnError * kP_turn ) + ( turnError - turnLast ) * kD_turn;
+        turnLast = turnError;
+        std::cout << "xdrive angle: target=" << normAngle(target[currTarget].theta) << " current=" << normAngle(*theta) << std::endl;
+
+        // Compute driveError (x and y)
         double x, y;
-        if (!target[currTarget].relative) {// using absolute position
+        if (!target[currTarget].relative) { // using absolute position
           Vector2 c = {*posX, *posY};
           Vector2 t = {target[currTarget].x, target[currTarget].y};
           std::cout << "xdrive: Original: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
@@ -764,17 +775,29 @@ void Chassis::run() {
           driveError  = target[currTarget].x - x;
           driveErrorY = target[currTarget].y - y;
         }
-
-        // for x
-        driveIntegral += driveError;
-        if( driveIntegral > ( kI_Windup / ( driveError * kP_drive ) ) ) driveIntegral = ( kI_Windup / ( driveError * kP_drive ) );
-         else if( driveIntegral < ( -kI_Windup / ( driveError * kP_drive ) ) ) driveIntegral = ( -kI_Windup / ( driveError * kP_drive ) );
-
+        // PID for X
         driveOutput = ( driveError * kP_drive ) + ( driveError - driveLast ) * kD_drive;
-
         driveLast = driveError;
-
+        // PID for Y
+        driveOutputY = ( driveErrorY * kP_drive ) + ( driveErrorY - driveLastY ) * kD_drive;
+        driveLastY = driveErrorY;
+        // Rate control
         if(target.size() - 1 == currTarget) {
+          // Rate control for turn
+          if(turnOutput > 0) {
+            if(turnOutput > turnSlewOutput + target[currTarget].rateTurn) turnSlewOutput += target[currTarget].rateTurn;
+            else turnSlewOutput = turnOutput;
+          } else if(turnOutput < 0) {
+            if(turnOutput < turnSlewOutput - target[currTarget].rateTurn) turnSlewOutput -= target[currTarget].rateTurn;
+            else turnSlewOutput = turnOutput;
+          }
+
+          // Drive and turn
+          if( isUsingAngle ) {
+            driveOutput /= ceil( abs( turnSlewOutput / 50 ) );
+            driveOutputY /= ceil( abs( turnSlewOutput / 50 ) );
+          }
+          // Rate control for X
           if(driveOutput > 0) {
             if(driveOutput > driveSlewOutput + target[currTarget].rateDrive) driveSlewOutput += target[currTarget].rateDrive;
               else driveSlewOutput = driveOutput;
@@ -782,25 +805,7 @@ void Chassis::run() {
             if(driveOutput < driveSlewOutput - target[currTarget].rateDrive) driveSlewOutput -= target[currTarget].rateDrive;
               else driveSlewOutput = driveOutput;
           }
-        } else {
-          //useless actually
-          if(target[currTarget].speedDrive > driveSlewOutput) driveSlewOutput += target[currTarget].rateDrive;
-          if(target[currTarget].speedDrive < driveSlewOutput) driveSlewOutput -= target[currTarget].rateDrive;
-        }
-
-        if(driveSlewOutput > target[currTarget].speedDrive) driveSlewOutput = target[currTarget].speedDrive;
-        if(driveSlewOutput < -target[currTarget].speedDrive) driveSlewOutput = -target[currTarget].speedDrive;
-
-        // for Y
-        driveIntegralY += driveErrorY;
-        if( driveIntegralY > ( kI_Windup / ( driveErrorY * kP_drive ) ) ) driveIntegralY = ( kI_Windup / ( driveErrorY * kP_drive ) );
-         else if( driveIntegralY < ( -kI_Windup / ( driveErrorY * kP_drive ) ) ) driveIntegralY = ( -kI_Windup / ( driveErrorY * kP_drive ) );
-
-        driveOutputY = ( driveErrorY * kP_drive ) + ( driveErrorY - driveLastY ) * kD_drive;
-
-        driveLastY = driveErrorY;
-
-        if(target.size() - 1 == currTarget) {
+          // rate control for Y
           if(driveOutputY > 0) {
             if(driveOutputY > driveSlewOutputY + target[currTarget].rateDrive) driveSlewOutputY += target[currTarget].rateDrive;
               else driveSlewOutputY = driveOutputY;
@@ -809,15 +814,31 @@ void Chassis::run() {
               else driveSlewOutputY = driveOutputY;
           }
         } else {
-          //useless actually
+          // Rate control for Turn
+          if(turnOutput > turnSlewOutput + target[currTarget].rateTurn) turnSlewOutput += target[currTarget].rateTurn;
+          else if(turnOutput < turnSlewOutput - target[currTarget].rateTurn) turnSlewOutput -= target[currTarget].rateTurn;
+          else turnSlewOutput = turnOutput;          
+          // Rate control for X
+          if(target[currTarget].speedDrive > driveSlewOutput) driveSlewOutput += target[currTarget].rateDrive;
+          if(target[currTarget].speedDrive < driveSlewOutput) driveSlewOutput -= target[currTarget].rateDrive;
+          // Rate control for Y
           if(target[currTarget].speedDrive > driveSlewOutputY) driveSlewOutputY += target[currTarget].rateDrive;
           if(target[currTarget].speedDrive < driveSlewOutputY) driveSlewOutputY -= target[currTarget].rateDrive;
+          // Drive and turn
+          driveSlewOutput /= ceil( abs( turnSlewOutput / 50 ) );
+          driveSlewOutputY /= ceil( abs( turnSlewOutput / 50 ) );
         }
-
+        // Slew control for turn
+        if(turnSlewOutput > target[currTarget].speedTurn) turnSlewOutput = target[currTarget].speedTurn;
+        if(turnSlewOutput < -target[currTarget].speedTurn) turnSlewOutput = -target[currTarget].speedTurn;
+        // Slew control for X
+        if(driveSlewOutput > target[currTarget].speedDrive) driveSlewOutput = target[currTarget].speedDrive;
+        if(driveSlewOutput < -target[currTarget].speedDrive) driveSlewOutput = -target[currTarget].speedDrive;
+        // Slew control for Y
         if(driveSlewOutputY > target[currTarget].speedDrive) driveSlewOutputY = target[currTarget].speedDrive;
         if(driveSlewOutputY < -target[currTarget].speedDrive) driveSlewOutputY = -target[currTarget].speedDrive;
 
-        // for both
+        // Tolerance (stop) control for both
         if(driveError < tolerance && driveError > -tolerance && driveErrorY < tolerance && driveErrorY > -tolerance) {
           if(target.size() - 1 == currTarget) {
             clearArr();
@@ -832,21 +853,26 @@ void Chassis::run() {
           }
         }
 
-        double totOutput1 = driveSlewOutput;
-        double totOutput2 = driveSlewOutputY;
-
-        LF.move(totOutput1);
-        LB.move(totOutput2);
-        RF.move(-totOutput2);
-        RB.move(-totOutput1);
+        // Power control
+        if( !isUsingAngle ) {
+          LF.move(driveSlewOutput - ( slop() * 5));
+          LB.move(driveSlewOutputY - ( slop() * 5));
+          RF.move(-driveSlewOutputY + ( slop() * 5));
+          RB.move(-driveSlewOutput + ( slop() * 5));
+        } else {
+          LF.move(driveSlewOutput - turnSlewOutput);
+          LB.move(driveSlewOutputY - turnSlewOutput);
+          RF.move(-driveSlewOutputY + turnSlewOutput);
+          RB.move(-driveSlewOutput + turnSlewOutput);
+        }
 
         // printf("%lf", driveError);
         // std::cout << driveError << std::endl;
         // std::cout << target[currTarget].x << std::endl;
         // std::cout << LEncoder.get_value() << std::endl;
 
-        std::cout << "XError: " << driveError << ", Drive Output: " << driveOutput << std::endl;
-        std::cout << "YError: " << driveErrorY << ", Drive Output: " << driveOutputY << std::endl;
+        std::cout << "xdrive power: turn=" << turnSlewOutput << " x=" << driveSlewOutput << " y=" << driveSlewOutputY << std::endl;
+        std::cout << "xdrive error: turn=" << turnError << " x=" << driveError << " y=" << driveErrorY << std::endl;
         // std::cout << "LF: " << LF.get_position() << "RB: " << RB.get_position() << std::endl;
         // std::cout << "LB: " << LB.get_position() << "RF: " << RF.get_position() << std::endl;
 
