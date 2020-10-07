@@ -132,6 +132,11 @@ Chassis& Chassis::withSettings(int driveSpeed_, int turnSpeed_, double driveRate
   return *this;
 }
 
+Chassis& Chassis::withRelative(bool relative_) {
+  target[target.size() - 1].relative = relative_;
+  return *this;
+}
+
 Chassis& Chassis::withTarget(double target_, double theta_, int speed, double rate, bool reverse_) {
   isUsingPoint = false;
   isUsingAngle = true;
@@ -744,21 +749,21 @@ void Chassis::run() {
 
       case STRAFING_XDRIVE: {
         double x, y;
-        # if 1 // using absolute position
-        Vector2 c = {*posX, *posY};
-        Vector2 t = {target[currTarget].x, target[currTarget].y};
-        std::cout << "xdrive: Original: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
-        c = xdriveXform(c);
-        t = xdriveXform(t);
-        driveError =  t.x - c.x;
-        driveErrorY = t.y - c.y;
-        std::cout << "xdrive: Current: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
-        #else // using motor
-        x = (LF.get_position() - RB.get_position()) / 2 ;
-        y = (LB.get_position() - RF.get_position()) / 2;
-        driveError  = target[currTarget].x - x;
-        driveErrorY = target[currTarget].y - y;
-        #endif
+        if (!target[currTarget].relative) {// using absolute position
+          Vector2 c = {*posX, *posY};
+          Vector2 t = {target[currTarget].x, target[currTarget].y};
+          std::cout << "xdrive: Original: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
+          c = xdriveXform(c);
+          t = xdriveXform(t);
+          driveError =  t.x - c.x;
+          driveErrorY = t.y - c.y;
+          std::cout << "xdrive: Current: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
+        } else { // using motor
+          x = (LF.get_position() - RB.get_position()) / 2 ;
+          y = (LB.get_position() - RF.get_position()) / 2;
+          driveError  = target[currTarget].x - x;
+          driveErrorY = target[currTarget].y - y;
+        }
 
         // for x
         driveIntegral += driveError;

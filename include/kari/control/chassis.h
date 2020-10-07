@@ -27,6 +27,7 @@ struct ChassisTarget {
   double rateDrive;
   double rateTurn;
   bool reverse;
+  bool relative;
 };
 
 class Chassis {
@@ -100,6 +101,9 @@ class Chassis {
     @param reverse Enables the robot to drive in reverse.
     */
     Chassis& withSettings(int driveSpeed_, int turnSpeed, double driveRate = 4, double turnRate_ = 4, bool reverse_ = false);
+
+    /* Use relative or absoute position to drive */
+    Chassis& withRelative(bool relative_);
 
     /*
     Sets the distance and angle that the robot should drive in.
