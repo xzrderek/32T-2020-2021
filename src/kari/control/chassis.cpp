@@ -282,8 +282,8 @@ Chassis& Chassis::strafexdrive(double x, double y, int speed_, double rate_) {
   // Vector2 v = xdriveXform(v0);
   // target[0].x = v.x;
   // target[0].y = v.y;
-  target[0].x = x;
-  target[0].y = y;
+  target[0].x = x; //RB
+  target[0].y = y; //RF
   target[0].speedDrive = speed_;
   target[0].rateDrive = rate_;
   target[0].relative = false;
