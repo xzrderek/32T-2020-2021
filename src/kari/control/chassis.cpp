@@ -132,8 +132,9 @@ Chassis& Chassis::withSettings(int driveSpeed_, int turnSpeed_, double driveRate
   return *this;
 }
 
-Chassis& Chassis::withRelative(bool relative_) {
+Chassis& Chassis::withRelative(bool relative_, double turnDriveRatio_) {
   target[target.size() - 1].relative = relative_;
+  target[target.size() - 1].turnDriveRatio = turnDriveRatio_;
   return *this;
 }
 
@@ -285,6 +286,8 @@ Chassis& Chassis::strafexdrive(double x, double y, int speed_, double rate_) {
   target[0].y = y;
   target[0].speedDrive = speed_;
   target[0].rateDrive = rate_;
+  target[0].relative = false;
+  target[0].turnDriveRatio = T2D;
   isSettled = false;
   reset();
   mode = STRAFING_XDRIVE;
@@ -748,7 +751,7 @@ void Chassis::run() {
       }
 
       case STRAFING_XDRIVE: {
-
+        double turnSlewOutputX =0, turnSlewOutputY = 0;
         // Compute turnError
         turnError = ( normAngle(target[currTarget].theta) - normAngle(*theta) );
         // turnError = atan2( sin( turnError ), cos( turnError ) );
@@ -783,20 +786,6 @@ void Chassis::run() {
         driveLastY = driveErrorY;
         // Rate control
         if(target.size() - 1 == currTarget) {
-          // Rate control for turn
-          if(turnOutput > 0) {
-            if(turnOutput > turnSlewOutput + target[currTarget].rateTurn) turnSlewOutput += target[currTarget].rateTurn;
-            else turnSlewOutput = turnOutput;
-          } else if(turnOutput < 0) {
-            if(turnOutput < turnSlewOutput - target[currTarget].rateTurn) turnSlewOutput -= target[currTarget].rateTurn;
-            else turnSlewOutput = turnOutput;
-          }
-
-          // Drive and turn
-          if( isUsingAngle ) {
-            driveOutput /= ceil( abs( turnSlewOutput / 50 ) );
-            driveOutputY /= ceil( abs( turnSlewOutput / 50 ) );
-          }
           // Rate control for X
           if(driveOutput > 0) {
             if(driveOutput > driveSlewOutput + target[currTarget].rateDrive) driveSlewOutput += target[currTarget].rateDrive;
@@ -813,11 +802,19 @@ void Chassis::run() {
             if(driveOutputY < driveSlewOutputY - target[currTarget].rateDrive) driveSlewOutputY -= target[currTarget].rateDrive;
               else driveSlewOutputY = driveOutputY;
           }
-        } else {
-          // Rate control for Turn
-          if(turnOutput > turnSlewOutput + target[currTarget].rateTurn) turnSlewOutput += target[currTarget].rateTurn;
-          else if(turnOutput < turnSlewOutput - target[currTarget].rateTurn) turnSlewOutput -= target[currTarget].rateTurn;
-          else turnSlewOutput = turnOutput;          
+          // Rate control for turn
+          if(turnOutput > 0) {
+            if(turnOutput > turnSlewOutput + target[currTarget].rateTurn) turnSlewOutput += target[currTarget].rateTurn;
+            else turnSlewOutput = turnOutput;
+          } else if(turnOutput < 0) {
+            if(turnOutput < turnSlewOutput - target[currTarget].rateTurn) turnSlewOutput -= target[currTarget].rateTurn;
+            else turnSlewOutput = turnOutput;
+          }
+        } else { // useless for now
+          // // Rate control for Turn
+          // if(turnOutput > turnSlewOutput + target[currTarget].rateTurn) turnSlewOutput += target[currTarget].rateTurn;
+          // else if(turnOutput < turnSlewOutput - target[currTarget].rateTurn) turnSlewOutput -= target[currTarget].rateTurn;
+          // else turnSlewOutput = turnOutput;          
           // Rate control for X
           if(target[currTarget].speedDrive > driveSlewOutput) driveSlewOutput += target[currTarget].rateDrive;
           if(target[currTarget].speedDrive < driveSlewOutput) driveSlewOutput -= target[currTarget].rateDrive;
@@ -825,8 +822,8 @@ void Chassis::run() {
           if(target[currTarget].speedDrive > driveSlewOutputY) driveSlewOutputY += target[currTarget].rateDrive;
           if(target[currTarget].speedDrive < driveSlewOutputY) driveSlewOutputY -= target[currTarget].rateDrive;
           // Drive and turn
-          driveSlewOutput /= ceil( abs( turnSlewOutput / 50 ) );
-          driveSlewOutputY /= ceil( abs( turnSlewOutput / 50 ) );
+          // driveSlewOutput /= ceil( abs( turnSlewOutput / 50 ) );
+          // driveSlewOutputY /= ceil( abs( turnSlewOutput / 50 ) );
         }
         // Slew control for turn
         if(turnSlewOutput > target[currTarget].speedTurn) turnSlewOutput = target[currTarget].speedTurn;
@@ -838,8 +835,31 @@ void Chassis::run() {
         if(driveSlewOutputY > target[currTarget].speedDrive) driveSlewOutputY = target[currTarget].speedDrive;
         if(driveSlewOutputY < -target[currTarget].speedDrive) driveSlewOutputY = -target[currTarget].speedDrive;
 
+        // Adjust angle based on power level of X and Y for drive and turn
+        if( isUsingAngle ) {
+          double t2d = target[currTarget].turnDriveRatio;
+          double t = abs(turnSlewOutput);
+          double d = abs(driveSlewOutput);
+          if (abs(driveSlewOutput * t2d) < abs(turnSlewOutput) && abs(driveError) > tolerance*2) {
+          // if (abs(d - t) / d > (1-t2d) && abs(driveError) > tolerance*2 ) {
+            if (turnSlewOutput > 0) turnSlewOutputX = driveSlewOutput * t2d;
+            else turnSlewOutputX = -driveSlewOutput * t2d;
+          } else {
+            turnSlewOutputX  = turnSlewOutput;
+          }
+
+          d = abs(driveSlewOutputY);
+          if (abs(driveSlewOutputY * t2d) < abs(turnSlewOutput) && abs(driveErrorY) > tolerance*2) {
+          // if (abs(d - t) / d > (1-t2d) && abs(driveErrorY) > tolerance*2 ) {
+            if (turnSlewOutputY > 0) turnSlewOutputY = driveSlewOutputY * t2d;
+            else turnSlewOutputY = -driveSlewOutputY * t2d;
+          } else {
+            turnSlewOutputY  = turnSlewOutput;
+          }
+        }
+
         // Tolerance (stop) control for both
-        if(driveError < tolerance && driveError > -tolerance && driveErrorY < tolerance && driveErrorY > -tolerance) {
+        if(abs(driveError) < tolerance && abs(driveErrorY) < tolerance /*&& abs(turnError) < tolerance*10 */) {
           if(target.size() - 1 == currTarget) {
             clearArr();
             isUsingPoint = false;
@@ -855,15 +875,15 @@ void Chassis::run() {
 
         // Power control
         if( !isUsingAngle ) {
-          LF.move(driveSlewOutput - ( slop() * 5));
-          LB.move(driveSlewOutputY - ( slop() * 5));
-          RF.move(-driveSlewOutputY + ( slop() * 5));
-          RB.move(-driveSlewOutput + ( slop() * 5));
+          LF.move(driveSlewOutput);
+          LB.move(driveSlewOutputY);
+          RF.move(-driveSlewOutputY);
+          RB.move(-driveSlewOutput);
         } else {
-          LF.move(driveSlewOutput - turnSlewOutput);
-          LB.move(driveSlewOutputY - turnSlewOutput);
-          RF.move(-driveSlewOutputY + turnSlewOutput);
-          RB.move(-driveSlewOutput + turnSlewOutput);
+          LF.move(driveSlewOutput - turnSlewOutputX);
+          LB.move(driveSlewOutputY - turnSlewOutputY);
+          RF.move(-driveSlewOutputY - turnSlewOutputY);
+          RB.move(-driveSlewOutput - turnSlewOutputX);
         }
 
         // printf("%lf", driveError);
@@ -871,7 +891,7 @@ void Chassis::run() {
         // std::cout << target[currTarget].x << std::endl;
         // std::cout << LEncoder.get_value() << std::endl;
 
-        std::cout << "xdrive power: turn=" << turnSlewOutput << " x=" << driveSlewOutput << " y=" << driveSlewOutputY << std::endl;
+        std::cout << "xdrive power: turnX=" << turnSlewOutputX << " turnY=" << turnSlewOutputY << " x=" << driveSlewOutput << " y=" << driveSlewOutputY << std::endl;
         std::cout << "xdrive error: turn=" << turnError << " x=" << driveError << " y=" << driveErrorY << std::endl;
         // std::cout << "LF: " << LF.get_position() << "RB: " << RB.get_position() << std::endl;
         // std::cout << "LB: " << LB.get_position() << "RF: " << RF.get_position() << std::endl;
@@ -911,7 +931,7 @@ double Chassis::slop(int mode) {
   switch(mode) {
     case 0: return ( deltaL - deltaR + offset) * amp; break; // Drive
     case 1: return ( ( *odomL - initL ) - ( *odomR - initR ) + offset ) * amp; break; // Strafe
-
+    case 2: return 0; break; // no slop
     default: return ( deltaL - deltaR + offset ) * amp; break;
   }
 }

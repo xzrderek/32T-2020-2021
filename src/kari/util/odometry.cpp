@@ -206,7 +206,7 @@ void Odom::run() {
     currentRB = RB_get_position();
     currentRF = RF_get_position();
 
-    pros::delay(2); //TODO
+    pros::delay(1); //TODO
   }
 }
 

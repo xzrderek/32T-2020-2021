@@ -12,6 +12,8 @@ extern pros::ADIUltrasonic Ultrasonic;
 #define STRAFING_SMART 6
 #define STRAFING_XDRIVE 7
 
+#define T2D 0.9
+
 struct Vector2 {
   double x;
   double y;
@@ -28,6 +30,7 @@ struct ChassisTarget {
   double rateTurn;
   bool reverse;
   bool relative;
+  double turnDriveRatio;
 };
 
 class Chassis {
@@ -103,7 +106,7 @@ class Chassis {
     Chassis& withSettings(int driveSpeed_, int turnSpeed, double driveRate = 4, double turnRate_ = 4, bool reverse_ = false);
 
     /* Use relative or absoute position to drive */
-    Chassis& withRelative(bool relative_);
+    Chassis& withRelative(bool relative_=false, double turnDriveRatio_=T2D);
 
     /*
     Sets the distance and angle that the robot should drive in.
