@@ -372,10 +372,17 @@ void skills1()
   roller(-30);
   score(3, 500);
   delay(1300);
-  chassis.drive(-300, 127).withTol(40).waitUntilSettled();
-  chassis.turn(-45, 127).withTol(5).waitUntilSettled();
+  // chassis.drive(-300, 127).withTol(40).waitUntilSettled();
+  // chassis.strafexdrive(-16, 40, 80, 2).withGain(20).withAngle(45, 127, 4).withRelative(false, 0.7).withTurnGain(6).withTol(1).waitUntilSettled();
+  // chassis.drive(-300, 127).withTol(40).waitUntilSettled();
+  chassis.strafexdrive(-13, 34, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  chassis.turn(45, 127).withTol(5).waitUntilSettled();
+  chassis.strafexdrive(-40, 30, 80, 2).withGain(20).withAngle(90, 127, 16).withRelative(false, 0.5).withTurnGain(6).withTol(1).waitUntilSettled();
+  chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+
+  // chassis.turn(-45, 127).withTol(5).waitUntilSettled();
   // chassis.strafexdrive(-9, 33, 80, 2).withGain(20).withAngle(45, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
-  chassis.drive(380, 80).withTol(40).waitUntilSettled();
+  // chassis.drive(380, 80).withTol(40).waitUntilSettled();
   // chassis.strafexdrive(60, 26, 80, 2).withGain(20).withAngle(90, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
 
   // chassis.strafexdrive(-3, 32, 80, 2).withGain(20).withAngle(-45, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
