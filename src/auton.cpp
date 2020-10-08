@@ -338,6 +338,8 @@ void skills1()
   
   // chassis.strafexdrive(-10, 0, 127, 2).withGain(20).withAngle(90, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
 
+  // chassis.strafexdrive(-15, 15, 127, 2).withGain(20).withTol(1).waitUntilSettled();
+  // chassis.strafexdrive(15, 15, 127, 2).withGain(25).withTol(1).waitUntilSettled();
   // chassis.strafexdrive(12, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
   // chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
 
@@ -353,9 +355,10 @@ void skills1()
   //abs pos chassis strafe xdrive below
   // chassis.strafexdrive(-10, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
   //relative pos chassis strafe xdrive, strafe left
-
-  // chassis.strafexdrive(-700, 900, 127, 2).withTol(10).waitUntilSettled();
-
+  // chassis.turn(0, 127).withTol(5).waitUntilSettled();
+  chassis.strafexdrive(-800, 800, 127, 2).withRelative(true).withTol(10).waitUntilSettled();
+  roller(127);
+  // chassis.turn(0, 127).withTol(5).waitUntilSettled();
   // int dlay = 200;
  
   // roller(127);

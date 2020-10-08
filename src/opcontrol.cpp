@@ -20,7 +20,7 @@ void opcontrol()
 
 	bool rel = false;
 
-	macro::Slew roller(10, 2);		  // Accel, Decel
+	macro::Slew roller(10, 2); // Accel, Decel
 	macro::Slew topScorer(4);
 	macro::Slew botScorer(9);
 
@@ -84,6 +84,22 @@ void opcontrol()
 			io::driveTScorer(-127);
 			io::driveBScorer(-127);
 		}
+		else if (master.get_digital(DIGITAL_LEFT))
+		{
+			io::driveTScorer(40);
+			io::driveBScorer(40);
+		}
+		else if (master.get_digital(DIGITAL_UP))
+		{
+			io::driveTScorer(20);
+			io::driveBScorer(20);
+		}
+		else if (master.get_digital(DIGITAL_DOWN))
+		{
+			io::driveTScorer(30);
+			io::driveBScorer(30);
+		}
+
 		else
 		{
 			// topScorer.calculate(0);
@@ -94,7 +110,6 @@ void opcontrol()
 
 		std::cout << LF.get_position() << std::endl;
 		std::cout << RF.get_position() << std::endl;
-
 
 		// io::driveTScorer(topScorer.getOutput());
 		// io::driveBScorer(botScorer.getOutput());
