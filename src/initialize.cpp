@@ -24,12 +24,6 @@ void initialize() {
   //tracking wheel version. using IMU angle
   Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY(), odom.getXInch(), odom.getYInch());
   
-  //tracking wheel version
-  //Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getPosHeading(), odom.getPosX(), odom.getPosY());
-  
-  //IMU version
-  //Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY());
-
   // Rack rack;
   // Arm arm;
   Display Disp;

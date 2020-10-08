@@ -17,7 +17,7 @@ int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastL = 0, Odom:
 double Odom::currentLF = 0, Odom::currentRF = 0, Odom::currentLB = 0, Odom::currentRB = 0;
 
 double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;
-double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::lastThetaRad = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0, Odom::posXInch = 0, Odom::posYInch = 0;
+double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::lastThetaDeg = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0, Odom::posXInch = 0, Odom::posYInch = 0;
 
 double Odom::output = 0, Odom::Desiredtheta = 0, Odom::DesiredX = 0, Odom::DesiredY = 0;
 
@@ -153,22 +153,22 @@ void Odom::run() {
     float y = ( sin( inertL - offset + PI ) + sin( inertR - offset + PI ) ) / 2;
     thetaRad = abs( atan2f(y, x) + PI );
     thetaDeg = thetaRad * 180 / PI;
-    // float dThetaRad = thetaRad - lastThetaRad; 
-    // lastThetaRad = thetaRad;
+    float thetaRadAvg = boundAngle(toRad((thetaDeg + lastThetaDeg) / 2));
+    lastThetaDeg = thetaDeg;
     
     // Calculate absolute position in ticks
-    posX += deltaM * cos(thetaRad) - (deltaL + deltaR) / 2 * sin(thetaRad);
-    posY += deltaM * sin(thetaRad) + (deltaL + deltaR) / 2 * cos(thetaRad);
-    // posX = posX + (( deltaL + deltaR ) / 2) * cos( thetaRad );
-    // posY = posY + (( deltaL + deltaR ) / 2) * sin( thetaRad );
+    posX += deltaM * cos(thetaRadAvg) - (deltaL + deltaR) / 2 * sin(thetaRadAvg);
+    posY += deltaM * sin(thetaRadAvg) + (deltaL + deltaR) / 2 * cos(thetaRadAvg);
+    // posX = posX + (( deltaL + deltaR ) / 2) * cos( thetaRadAvg );
+    // posY = posY + (( deltaL + deltaR ) / 2) * sin( thetaRadAvg );
 
     // Calculate absolute position in inches
     float dL = encoderDistInch(deltaL);
     float dR = encoderDistInch(deltaR);
     float dx = encoderDistInch(deltaM);
     float dy = avg(dR, dL);
-    posXInch += dx * cos(thetaRad) - dy * sin(thetaRad);
-    posYInch += dx * sin(thetaRad) + dy * cos(thetaRad);
+    posXInch += dx * cos(thetaRadAvg) - dy * sin(thetaRadAvg);
+    posYInch += dx * sin(thetaRadAvg) + dy * cos(thetaRadAvg);
 
     #if 0 // Compute angle in stead of IMU
     // Use tracking wheels to calculate position
