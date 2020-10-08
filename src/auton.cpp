@@ -356,8 +356,8 @@ void skills1()
   // chassis.strafexdrive(-10, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
   //relative pos chassis strafe xdrive, strafe left
   // chassis.turn(0, 127).withTol(5).waitUntilSettled();
-  chassis.strafexdrive(-800, 800, 127, 2).withRelative(true).withTol(10).waitUntilSettled();
-  roller(127);
+  // chassis.strafexdrive(-800, 800, 127, 2).withRelative(true).withTol(10).waitUntilSettled();
+  // roller(127);
   // chassis.turn(0, 127).withTol(5).waitUntilSettled();
   // int dlay = 200;
  
