@@ -753,9 +753,15 @@ void Chassis::run() {
       }
 
       case STRAFING_XDRIVE: {
+        /* 
+        Scale of turn and drive:
+              range   accuracy    kP
+        turn  0-180      5        4 
+        drive 0-50       1        20
+        */
         double turnSlewOutputX = 0, turnSlewOutputY = 0;
         // Compute turnError
-        turnError = ( normAngle(target[currTarget].theta) - normAngle(*theta) );
+        turnError = normAngle(target[currTarget].theta - *theta);
         // turnError = atan2( sin( turnError ), cos( turnError ) );
         // turnError = turnError * 180 / PI;
         // PID for turn
@@ -814,9 +820,9 @@ void Chassis::run() {
           }
         } else { // useless for now
           // // Rate control for Turn
-          // if(turnOutput > turnSlewOutput + target[currTarget].rateTurn) turnSlewOutput += target[currTarget].rateTurn;
-          // else if(turnOutput < turnSlewOutput - target[currTarget].rateTurn) turnSlewOutput -= target[currTarget].rateTurn;
-          // else turnSlewOutput = turnOutput;          
+          if(turnOutput > turnSlewOutput + target[currTarget].rateTurn) turnSlewOutput += target[currTarget].rateTurn;
+          else if(turnOutput < turnSlewOutput - target[currTarget].rateTurn) turnSlewOutput -= target[currTarget].rateTurn;
+          else turnSlewOutput = turnOutput;          
           // Rate control for X
           if(target[currTarget].speedDrive > driveSlewOutput) driveSlewOutput += target[currTarget].rateDrive;
           if(target[currTarget].speedDrive < driveSlewOutput) driveSlewOutput -= target[currTarget].rateDrive;
@@ -827,22 +833,20 @@ void Chassis::run() {
           // driveSlewOutput /= ceil( abs( turnSlewOutput / 50 ) );
           // driveSlewOutputY /= ceil( abs( turnSlewOutput / 50 ) );
         }
-        // Slew control for turn
+        // Limit control for turn
         if(turnSlewOutput > target[currTarget].speedTurn) turnSlewOutput = target[currTarget].speedTurn;
         if(turnSlewOutput < -target[currTarget].speedTurn) turnSlewOutput = -target[currTarget].speedTurn;
-        // Slew control for X
+        // Limit control for X
         if(driveSlewOutput > target[currTarget].speedDrive) driveSlewOutput = target[currTarget].speedDrive;
         if(driveSlewOutput < -target[currTarget].speedDrive) driveSlewOutput = -target[currTarget].speedDrive;
-        // Slew control for Y
+        // Limit control for Y
         if(driveSlewOutputY > target[currTarget].speedDrive) driveSlewOutputY = target[currTarget].speedDrive;
         if(driveSlewOutputY < -target[currTarget].speedDrive) driveSlewOutputY = -target[currTarget].speedDrive;
 
         // Adjust angle based on power level of X and Y for drive and turn
         if( isUsingAngle ) {
           double t2d = target[currTarget].turnDriveRatio;
-          double t = abs(turnSlewOutput);
-          double d = abs(driveSlewOutput);
-          if (abs(driveSlewOutput * t2d) < abs(turnSlewOutput) && abs(driveError) > tolerance*2) {
+          if (abs(driveSlewOutput * t2d) > abs(turnSlewOutput) && abs(driveError) > tolerance*2) {
           // if (abs(d - t) / d > (1-t2d) && abs(driveError) > tolerance*2 ) {
             if (turnSlewOutput > 0) turnSlewOutputX = driveSlewOutput * t2d;
             else turnSlewOutputX = -driveSlewOutput * t2d;
@@ -850,7 +854,6 @@ void Chassis::run() {
             turnSlewOutputX  = turnSlewOutput;
           }
 
-          d = abs(driveSlewOutputY);
           if (abs(driveSlewOutputY * t2d) < abs(turnSlewOutput) && abs(driveErrorY) > tolerance*2) {
           // if (abs(d - t) / d > (1-t2d) && abs(driveErrorY) > tolerance*2 ) {
             if (turnSlewOutputY > 0) turnSlewOutputY = driveSlewOutputY * t2d;
@@ -861,7 +864,7 @@ void Chassis::run() {
         }
 
         // Tolerance (stop) control for both
-        if(abs(driveError) < tolerance && abs(driveErrorY) < tolerance /*&& abs(turnError) < tolerance*10 */) {
+        if(abs(driveError) < tolerance && abs(driveErrorY) < tolerance /*&& abs(turnError) < tolerance*5 */) {
           if(target.size() - 1 == currTarget) {
             clearArr();
             isUsingPoint = false;

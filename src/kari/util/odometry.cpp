@@ -152,7 +152,7 @@ void Odom::run() {
     float x = ( cos( inertL - offset + PI ) + cos( inertR - offset + PI ) ) / 2;
     float y = ( sin( inertL - offset + PI ) + sin( inertR - offset + PI ) ) / 2;
     thetaRad = abs( atan2f(y, x) + PI );
-    thetaDeg = thetaRad * 180 / PI;
+    thetaDeg = normAngle(thetaRad * 180 / PI);
     float thetaRadAvg = boundAngle(toRad((thetaDeg + lastThetaDeg) / 2));
     lastThetaDeg = thetaDeg;
     
