@@ -36,7 +36,7 @@ struct ChassisTarget {
 class Chassis {
   public:
     Chassis();
-    Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_);
+    Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_, double * posXInch_, double * posYInch_);
     ~Chassis();
 
     Vector2 xdriveXform(Vector2 v, double angle=45.0);
@@ -255,7 +255,7 @@ class Chassis {
     static bool isUsingPoint, isUsingAngle;
 
     static int *odomL, *odomR, *odomM;
-    static double *theta, *posX, *posY;
+    static double *theta, *posX, *posY, *posXInch, *posYInch;
 
     static double current, initL, initR, initM, deltaL, deltaR, deltaM;
     static double driveError, driveIntegral, driveLast, turnError, turnIntegral, turnLast;

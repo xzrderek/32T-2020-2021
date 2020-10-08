@@ -22,7 +22,7 @@ int Chassis::currTarget = 0;
 bool Chassis::isUsingPoint = false, Chassis::isUsingAngle = false;
 
 int *Chassis::odomL, *Chassis::odomR, *Chassis::odomM;
-double *Chassis::theta, *Chassis::posX, *Chassis::posY;
+double *Chassis::theta, *Chassis::posX, *Chassis::posY, *Chassis::posXInch, *Chassis::posYInch;
 
 double Chassis::current = 0, Chassis::initL = 0, Chassis::initR = 0, Chassis::initM = 0, Chassis::deltaL = 0, Chassis::deltaR = 0, Chassis::deltaM = 0,
 Chassis::driveError = 0, Chassis::driveIntegral = 0, Chassis::driveLast = 0, Chassis::turnError = 0, Chassis::turnIntegral = 0, Chassis::turnLast = 0,
@@ -48,13 +48,15 @@ double RF_get_position() {
 
 Chassis::Chassis() { }
 
-Chassis::Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_) {
+Chassis::Chassis(int * odomL_, int * odomR_, int * odomM_, double * theta_, double * posX_, double * posY_, double * posXInch_, double * posYInch_) {
   odomL = odomL_;
   odomR = odomR_;
   odomM = odomM_;
   theta = theta_;
   posX = posX_;
   posY = posY_;
+  posXInch = posXInch_;
+  posYInch = posYInch_;
 }
 
 Chassis::~Chassis() {
@@ -751,7 +753,7 @@ void Chassis::run() {
       }
 
       case STRAFING_XDRIVE: {
-        double turnSlewOutputX =0, turnSlewOutputY = 0;
+        double turnSlewOutputX = 0, turnSlewOutputY = 0;
         // Compute turnError
         turnError = ( normAngle(target[currTarget].theta) - normAngle(*theta) );
         // turnError = atan2( sin( turnError ), cos( turnError ) );
@@ -764,7 +766,7 @@ void Chassis::run() {
         // Compute driveError (x and y)
         double x, y;
         if (!target[currTarget].relative) { // using absolute position
-          Vector2 c = {*posX, *posY};
+          Vector2 c = {*posXInch, *posYInch};
           Vector2 t = {target[currTarget].x, target[currTarget].y};
           std::cout << "xdrive: Original: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
           c = xdriveXform(c);

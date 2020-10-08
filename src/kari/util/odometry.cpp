@@ -17,14 +17,11 @@ int Odom::deltaL = 0, Odom::deltaR = 0, Odom::deltaM = 0, Odom::lastL = 0, Odom:
 double Odom::currentLF = 0, Odom::currentRF = 0, Odom::currentLB = 0, Odom::currentRB = 0;
 
 double Odom::inertL = 0, Odom::inertR = 0, Odom::inertT = 0;
-double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::lastThetaRad = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0;
+double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::lastThetaRad = 0, Odom::offset = 0, Odom::posX = 0, Odom::posY = 0, Odom::posXInch = 0, Odom::posYInch = 0;
 
 double Odom::output = 0, Odom::Desiredtheta = 0, Odom::DesiredX = 0, Odom::DesiredY = 0;
 
 double Odom::wheelWidth = 14.75; //in inch
-
-Position Odom::pos = Position(0,0,0);
-Position Odom::t_pos = Position(0,0,0);
 
 double * Odom::getLF() {
   return &currentLF;
@@ -82,16 +79,16 @@ double * Odom::getY() {
   return &posY;
 }
 
-double * Odom::getPosX() {
-  return &pos.X;
+double * Odom::getXInch() {
+  return &posXInch;
 }
 
-double * Odom::getPosY() {
-  return &pos.Y;
+double * Odom::getYInch() {
+  return &posYInch;
 }
 
 double * Odom::getPosHeading() {
-  return &pos.heading;
+  return 0; //&pos.heading;
 }
 
 Odom& Odom::calibrateGyro() {
@@ -117,8 +114,7 @@ Odom& Odom::zero() {
 
 Odom& Odom::reset() {
   posX = posY = 0;
-  pos.X = pos.Y = 0;
-  t_pos.X = t_pos.Y = 0;
+  posXInch = posYInch = 0;
   return *this;
 }
 
@@ -150,27 +146,34 @@ void Odom::run() {
     lastR = currentR;
     lastM = currentM;
 
-    // Use IMU to calculate position
+    // Use IMU to calculate angle
     inertL = abs( Imu_L.get_heading() - 360 ) * PI / 180;
     inertR = abs( Imu_R.get_heading() - 360 ) * PI / 180;
     float x = ( cos( inertL - offset + PI ) + cos( inertR - offset + PI ) ) / 2;
     float y = ( sin( inertL - offset + PI ) + sin( inertR - offset + PI ) ) / 2;
     thetaRad = abs( atan2f(y, x) + PI );
     thetaDeg = thetaRad * 180 / PI;
-    float dThetaRad = thetaRad - lastThetaRad; 
-    lastThetaRad = thetaRad;
-    // Calculate absolute position
-    posX = posX + (( deltaL + deltaR ) / 2) * cos( thetaRad );
-    posY = posY + (( deltaL + deltaR ) / 2) * sin( thetaRad );
+    // float dThetaRad = thetaRad - lastThetaRad; 
+    // lastThetaRad = thetaRad;
+    
+    // Calculate absolute position in ticks
+    posX += deltaM * cos(thetaRad) - (deltaL + deltaR) / 2 * sin(thetaRad);
+    posY += deltaM * sin(thetaRad) + (deltaL + deltaR) / 2 * cos(thetaRad);
+    // posX = posX + (( deltaL + deltaR ) / 2) * cos( thetaRad );
+    // posY = posY + (( deltaL + deltaR ) / 2) * sin( thetaRad );
 
-    // Use tracking wheels to calculate position
-    // http://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf
-    // https://www-users.cs.umn.edu/~stergios/papers/iros99_pioneer.pdf
+    // Calculate absolute position in inches
     float dL = encoderDistInch(deltaL);
     float dR = encoderDistInch(deltaR);
     float dx = encoderDistInch(deltaM);
     float dy = avg(dR, dL);
-    #if 0 // Compute angle 
+    posXInch += dx * cos(thetaRad) - dy * sin(thetaRad);
+    posYInch += dx * sin(thetaRad) + dy * cos(thetaRad);
+
+    #if 0 // Compute angle in stead of IMU
+    // Use tracking wheels to calculate position
+    // http://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf
+    // https://www-users.cs.umn.edu/~stergios/papers/iros99_pioneer.pdf
     float dHeading = boundAngle(toRad((dR - dL) / Odom::wheelWidth;
     float avgHeading = normAngle(pos.heading + dHeading / 2.0);
     float radHeading = boundAngle(toRad(avgHeading));
@@ -184,22 +187,8 @@ void Odom::run() {
     pos.heading = normAngle(t_pos.heading);
     pos.X = t_pos.X + distToCenter * cos(radHeading) - distToCenter;
     pos.Y = t_pos.Y - distToCenter * sin(radHeading);
-    #elif 1 // Use IMU angle
-    // float avgHeading = normAngle(thetaRad - dThetaRad / 2.0);
-    // float radHeading = boundAngle(toRad(avgHeading));
-    // const float distToCenter = (wheelWidth / 2);
-    float radHeading = thetaRad;
-    t_pos.X += dx * cos(radHeading) - dy * sin(radHeading);
-    t_pos.Y += dx * sin(radHeading) + dy * cos(radHeading);
-    pos.X = t_pos.X; // + distToCenter * cos(radHeading);
-    pos.Y = t_pos.Y; // + distToCenter * sin(radHeading) - distToCenter;
-    // std::cout << "odom: radHeading: " << radHeading << " t_pos: " << t_pos.X << ", " << t_pos.Y << std::endl;
-    #else
-    float dist = sqrt()
-    pos.X = pos.X + dy * sin( thetaRad );
-    pos.Y = pos.Y + dy * cos( thetaRad );
     #endif
-
+    
     // read motor poistions
     currentLB = LB_get_position();
     currentLF = LF_get_position();

@@ -22,7 +22,7 @@ void initialize() {
   Odom odom;
 
   //tracking wheel version. using IMU angle
-  Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getPosX(), odom.getPosY());
+  Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY(), odom.getXInch(), odom.getYInch());
   
   //tracking wheel version
   //Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getPosHeading(), odom.getPosX(), odom.getPosY());
@@ -69,9 +69,8 @@ void initialize() {
       .addInfo("Rad Theta", 'd', odom.getThetaRad())
       .addInfo("X", 'd', odom.getX())
       .addInfo("Y", 'd', odom.getY())
-      .addInfo("Pos Heading", 'd', odom.getPosHeading())
-      .addInfo("Pos X", 'd', odom.getPosX())
-      .addInfo("Pos Y", 'd', odom.getPosY())
+      .addInfo("X inches", 'd', odom.getXInch())
+      .addInfo("Y inches", 'd', odom.getYInch())
       .addInfo("X1 LF", 'd', odom.getLF())
       .addInfo("Y1 RF", 'd', odom.getRF())
       .addInfo("Y2 LB", 'd', odom.getLB())

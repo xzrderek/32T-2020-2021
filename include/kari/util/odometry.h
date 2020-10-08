@@ -36,8 +36,8 @@ class Odom {
     double * getY();
 
     // tracking wheel version
-    double * getPosX();
-    double * getPosY();
+    double * getXInch();
+    double * getYInch();
     double * getPosHeading();
 
     Odom& calibrateGyro();
@@ -55,11 +55,10 @@ class Odom {
     static int deltaL, deltaR, deltaM, lastL, lastR, lastM;
     static double currentLF, currentLB, currentRF, currentRB;
     static double inertL, inertR, inertT;
-    static double thetaRad, thetaDeg, lastThetaRad, offset, posX, posY;
+    static double thetaRad, thetaDeg, lastThetaRad, offset, posX, posY, posXInch, posYInch;
 
     static double output, DesiredX, DesiredY, Desiredtheta;
 
     static double wheelWidth;
 
-    static Position pos, t_pos;
 };
