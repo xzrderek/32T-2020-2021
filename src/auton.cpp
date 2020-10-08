@@ -324,7 +324,7 @@ void skills1()
   // chassis.turn(-60, 127).withTol(5).waitUntilSettled();
   // chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(.8).waitUntilSettled();
   // chassis.turn(0, 100).withTol(5).waitUntilSettled();
-  chassis.strafexdrive(-15, 15, 80, 2).withGain(20).withTol(1).waitUntilSettled();
+  // chassis.strafexdrive(-15, 15, 80, 2).withGain(20).withTol(1).waitUntilSettled();
   // Good 1
   // chassis.strafexdrive(12, 0, 80, 2).withGain(20).withAngle(60, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
   // Good 2
@@ -335,7 +335,7 @@ void skills1()
   // chassis.left(-60);
   // chassis.right(-60);
   // delay(2000);
-  
+
   // chassis.strafexdrive(-10, 0, 127, 2).withGain(20).withAngle(90, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
 
   // chassis.strafexdrive(-15, 15, 127, 2).withGain(20).withTol(1).waitUntilSettled();
@@ -360,8 +360,26 @@ void skills1()
   // roller(127);
   // chassis.turn(0, 127).withTol(5).waitUntilSettled();
   // int dlay = 200;
- 
-  // roller(127);
+
+  roller(-63);
+  chassis.strafexdrive(-14, 0, 80, 2).withGain(20).withTol(.8).waitUntilSettled();
+  delay(300);
+  roller(127);
+  scorer(-63);
+  chassis.drive(550, 127).withTol(40).waitUntilSettled();
+  scorer(25);
+  chassis.strafexdrive(-7, 40, 80, 2).withGain(20).withAngle(-45, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
+  roller(-30);
+  score(3, 500);
+  delay(1300);
+  chassis.drive(-300, 127).withTol(40).waitUntilSettled();
+  chassis.turn(-45, 127).withTol(5).waitUntilSettled();
+  // chassis.strafexdrive(-9, 33, 80, 2).withGain(20).withAngle(45, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
+  chassis.drive(380, 80).withTol(40).waitUntilSettled();
+  // chassis.strafexdrive(60, 26, 80, 2).withGain(20).withAngle(90, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
+
+  // chassis.strafexdrive(-3, 32, 80, 2).withGain(20).withAngle(-45, 127, 4).withTurnGain(6).withTol(1).waitUntilSettled();
+
   // chassis.drive(1300, 100).withTol(40).waitUntilSettled();
   // chassis.turn(-80, 127).withTol(5).waitUntilSettled();
   // chassis.left(100);
@@ -384,7 +402,6 @@ void skills1()
   // chassis.right(100);
   // delay(dlay+200);
   // score(5, 500);
-
 }
 
 void skills3()
