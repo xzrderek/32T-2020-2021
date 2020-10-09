@@ -8,7 +8,7 @@ pros::ADIEncoder LEncoder(1, 2, true),
                  REncoder(7, 8, true),
                  MEncoder(3, 4);
 
-pros::Imu Imu_L(20), Imu_R(3);
+pros::Imu Imu_L(16), Imu_R(3);
 
 bool Odom::isRunning = false;
 

@@ -5,7 +5,7 @@ namespace io {
   pros::Controller master(CONTROLLER_MASTER);
 
   pros::Motor RollerL(10, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_ROTATIONS); // Left Roller
-  pros::Motor RollerR(2, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_ROTATIONS); // Right Roller
+  pros::Motor RollerR(13, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_ROTATIONS); // Right Roller
   pros::Motor RollerT(4, MOTOR_GEARSET_06, 0, MOTOR_ENCODER_ROTATIONS);
   pros::Motor RollerB(9, MOTOR_GEARSET_06, 0, MOTOR_ENCODER_ROTATIONS);
 
