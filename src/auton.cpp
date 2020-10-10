@@ -394,7 +394,7 @@ void skills1()
   roller(25);
   score(3, 600);
   delay(500);
-  roller(127)
+  roller(127);
   //score finish
   chassis.drive(-500, 100, 2).withTol(60).waitUntilSettled();
   //third goal finished
@@ -410,7 +410,7 @@ void skills1()
   chassis.turn(90, 100).withTol(5).waitUntilSettled(); //prob not needed
   score(3, 600);
   delay(500);
-  roller(127)
+  roller(127);
   //score finish
   chassis.drive(-500, 90, 2).withTol(60).waitUntilSettled();
   //4th goal finished
@@ -477,7 +477,7 @@ void skills1()
   roller(25);
   score(3, 600);
   delay(500);
-  roller(127)
+  roller(127);
   //score finish
   chassis.drive(-500, 100, 2).withTol(60).waitUntilSettled();
   //7th goal finished
@@ -490,7 +490,7 @@ void skills1()
   roller(25);
   score(3, 600);
   delay(500);
-  roller(127)
+  roller(127);
   //score finish
 
 
