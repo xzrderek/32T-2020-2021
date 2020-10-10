@@ -35,10 +35,10 @@ void opcontrol()
 		// std::cout << master.get_analog(ANALOG_LEFT_Y) << std::endl;
 		// std::cout << LEncoder.get_value() << std::endl;
 
-		LF.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.58 + master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.58);
-		LB.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.58 - master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.58);
-		RF.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.58 + master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.58);
-		RB.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.58 - master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.58);
+		LF.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.58 + master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.15);
+		LB.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.58 - master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.15);
+		RF.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.58 + master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.15);
+		RB.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.58 - master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.15);
 
 		/*--------------------------------
 				ROLLERS
@@ -74,8 +74,8 @@ void opcontrol()
 		{
 			// topScorer.calculate(127);
 			// botScorer.calculate(-127);
-			io::driveTScorer(127);
-			io::driveBScorer(-127);
+			io::driveTScorer(90);
+			io::driveBScorer(-90);
 		}
 		else if (master.get_digital(DIGITAL_RIGHT)) //outake
 		{
@@ -84,20 +84,10 @@ void opcontrol()
 			io::driveTScorer(-127);
 			io::driveBScorer(-127);
 		}
-		else if (master.get_digital(DIGITAL_LEFT))
+		else if (master.get_digital(DIGITAL_X))
 		{
-			io::driveTScorer(40);
-			io::driveBScorer(40);
-		}
-		else if (master.get_digital(DIGITAL_UP))
-		{
-			io::driveTScorer(20);
-			io::driveBScorer(20);
-		}
-		else if (master.get_digital(DIGITAL_DOWN))
-		{
-			io::driveTScorer(30);
-			io::driveBScorer(30);
+			io::driveTScorer(80);
+			io::driveBScorer(80);
 		}
 
 		else

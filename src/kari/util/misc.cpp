@@ -61,7 +61,10 @@ namespace io {
     pros::delay(50);
     RollerB.move_relative(rot, -speed);
   }
- 
+  void drivePooper(int speed) {
+    RollerT.move(speed);
+    RollerB.move(-speed);
+  }
   void down(double rot, int speed)
   {
     RollerT.move_relative(rot, -speed);
@@ -69,13 +72,21 @@ namespace io {
     RollerB.move_relative(rot, -speed);
   }
 
-  void autonscore(int rot, int speed, int time) {
+  void autonscore(double rot, int speed, int time) {
     roller(0);
     score(rot, speed);
     pros::delay(time);
     roller(-25);
     scorer(-25);
   }
+
+  // void autonmiddle(int rot, int speed, int time) {
+  //   roller(0);
+  //   score(rot, speed);
+  //   pros::delay(time);
+  //   // roller(-25);
+  //   scorer(-25);
+  // }
 
   void afterscore() {
     roller(127);

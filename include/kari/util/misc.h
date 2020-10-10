@@ -19,8 +19,9 @@ namespace io {
   void driveBScorer(int speed);
   void score(double rot, int speed);
   void poop(double rot, int speed);
+  void drivePooper(int speed);
   void down(double rot, int speed);
-  void autonscore(int rot, int speed, int time);
+  void autonscore(double rot, int speed, int time);
   void afterscore();
   void index(int speed = 30);
 }
