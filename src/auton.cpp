@@ -36,7 +36,7 @@ void tester()
   // chassis.turn(45,70).withTol(10).waitUntilSettled();
   // chassis.drive(500,40,2).withAngle(45, 80).withTol(30).waitUntilSettled();
 
-  io::master.rumble(" . .");
+  master.rumble(" . .");
 }
 
 /*===========================================

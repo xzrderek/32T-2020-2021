@@ -20,6 +20,9 @@ namespace io {
   void score(double rot, int speed);
   void poop(double rot, int speed);
   void down(double rot, int speed);
+  void autonscore(int rot, int speed, int time);
+  void afterscore();
+  void index(int speed = 30);
 }
 
 namespace macro {

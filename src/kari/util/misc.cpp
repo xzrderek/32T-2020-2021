@@ -82,7 +82,7 @@ namespace io {
     scorer(-127);
   }
 
-  void index(int speed = 30) {
+  void index(int speed) {
     roller(127);
     scorer(speed);
   }
