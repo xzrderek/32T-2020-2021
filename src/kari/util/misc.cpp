@@ -69,6 +69,24 @@ namespace io {
     RollerB.move_relative(rot, -speed);
   }
 
+  void autonscore(int rot, int speed, int time) {
+    roller(0);
+    score(rot, speed);
+    pros::delay(time);
+    roller(-25);
+    scorer(-25);
+  }
+
+  void afterscore() {
+    roller(127);
+    scorer(-127);
+  }
+
+  void index(int speed = 30) {
+    roller(127);
+    scorer(speed);
+  }
+
 }
 
 namespace macro {
