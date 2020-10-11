@@ -69,3 +69,4 @@ void bluebigzonescore();
 void skills1();
 void skills2();
 void skills3();
+void skills4();

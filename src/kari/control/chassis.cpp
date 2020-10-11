@@ -76,10 +76,10 @@ Chassis& Chassis::withGain(double kP, double kI, double kD, double windUp) {
 Vector2 Chassis::xdriveXform(Vector2 v, double heading){
   Vector2 n;
   // *theta is the angle of the robot turned so far
-  std::cout << "xdrive: xdrive=" << heading << ", theta=" << *theta;
+  // std::cout << "xdrive: xdrive=" << heading << ", theta=" << *theta;
   heading = normAngle(heading + *theta);
   double angle = boundAngle(toRad(heading));
-  std::cout << ", angle=" << heading << ", radian=" << angle << std::endl;
+  // std::cout << ", angle=" << heading << ", radian=" << angle << std::endl;
 
   //angle = PI/4;
   n.x = v.x * cos(-angle) - v.y * sin(-angle);
@@ -459,6 +459,18 @@ void Chassis::run() {
       }
 
       case DRIVING_DIST: { // Drive to Distance
+
+        std::cout << "driveError: " << driveError << std::endl;
+        std::cout << "tolerance: " << tolerance << std::endl;
+        std::cout << "target: " << target[currTarget].x << std::endl;
+        std::cout << "deltaL: " << deltaL << std::endl;
+        std::cout << "deltaR: " << deltaR << std::endl;
+        std::cout << "odomL: " << *odomL << std::endl;
+        std::cout << "odomR: " << *odomR << std::endl;
+        std::cout << "initL: " << initL << std::endl;
+        std::cout << "initR: " << initR << std::endl;
+        // std::cout << "heading: " << odom.getThetaDeg() << std::endl;
+
         deltaL = *odomL - initL;
         deltaR = *odomR - initR;
 
@@ -767,19 +779,19 @@ void Chassis::run() {
         // PID for turn
         turnOutput = ( turnError * kP_turn ) + ( turnError - turnLast ) * kD_turn;
         turnLast = turnError;
-        std::cout << "xdrive angle: target=" << normAngle(target[currTarget].theta) << " current=" << normAngle(*theta) << std::endl;
+        // std::cout << "xdrive angle: target=" << normAngle(target[currTarget].theta) << " current=" << normAngle(*theta) << std::endl;
 
         // Compute driveError (x and y)
         double x, y;
         if (!target[currTarget].relative) { // using absolute position
           Vector2 c = {*posXInch, *posYInch};
           Vector2 t = {target[currTarget].x, target[currTarget].y};
-          std::cout << "xdrive: Original: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
+          // std::cout << "xdrive: Original: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
           c = xdriveXform(c);
           t = xdriveXform(t);
           driveError =  t.x - c.x;
           driveErrorY = t.y - c.y;
-          std::cout << "xdrive: Current: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
+          // std::cout << "xdrive: Current: " << c.x << ", " << c.y << " Target: " << t.x << ", " << t.y << std::endl;
         } else { // using motor
           x = (LF.get_position() - RB.get_position()) / 2 ;
           y = (LB.get_position() - RF.get_position()) / 2;
@@ -896,8 +908,8 @@ void Chassis::run() {
         // std::cout << target[currTarget].x << std::endl;
         // std::cout << LEncoder.get_value() << std::endl;
 
-        std::cout << "xdrive power: turnX=" << turnSlewOutputX << " turnY=" << turnSlewOutputY << " x=" << driveSlewOutput << " y=" << driveSlewOutputY << std::endl;
-        std::cout << "xdrive error: turn=" << turnError << " x=" << driveError << " y=" << driveErrorY << std::endl;
+        // std::cout << "xdrive power: turnX=" << turnSlewOutputX << " turnY=" << turnSlewOutputY << " x=" << driveSlewOutput << " y=" << driveSlewOutputY << std::endl;
+        // std::cout << "xdrive error: turn=" << turnError << " x=" << driveError << " y=" << driveErrorY << std::endl;
         // std::cout << "LF: " << LF.get_position() << "RB: " << RB.get_position() << std::endl;
         // std::cout << "LB: " << LB.get_position() << "RF: " << RF.get_position() << std::endl;
 

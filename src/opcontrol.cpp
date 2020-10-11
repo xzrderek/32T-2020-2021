@@ -29,16 +29,18 @@ void opcontrol()
 	RF.set_brake_mode(MOTOR_BRAKE_COAST);
 	RB.set_brake_mode(MOTOR_BRAKE_COAST);
 
+	bool pressedIntake = false;
+
 	while (true)
 	{
 		// printf("%lf", LEncoder.get_value());
 		// std::cout << master.get_analog(ANALOG_LEFT_Y) << std::endl;
 		// std::cout << LEncoder.get_value() << std::endl;
 
-		LF.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.58 + master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.15);
-		LB.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.58 - master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.15);
-		RF.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.58 + master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.15);
-		RB.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.58 - master.get_analog(ANALOG_LEFT_X) * 1.58 + master.get_analog(ANALOG_RIGHT_X) * 1.15);
+		LF.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.1 + master.get_analog(ANALOG_LEFT_X) * 1.1 + master.get_analog(ANALOG_RIGHT_X) * 0.6);
+		LB.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.1 - master.get_analog(ANALOG_LEFT_X) * 1.1 + master.get_analog(ANALOG_RIGHT_X) * 0.6);
+		RF.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.1 + master.get_analog(ANALOG_LEFT_X) * 1.1 + master.get_analog(ANALOG_RIGHT_X) * 0.6);
+		RB.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.1 - master.get_analog(ANALOG_LEFT_X) * 1.1 + master.get_analog(ANALOG_RIGHT_X) * 0.6);
 
 		/*--------------------------------
 				ROLLERS
@@ -47,6 +49,9 @@ void opcontrol()
 		{
 			// roller.calculate(127);
 			io::driveRoller(127);
+			// io::driveTScorer(50);
+			// io::driveBScorer(50);
+			pressedIntake = true;
 		}
 		else if (master.get_digital(DIGITAL_R2))
 		{
@@ -59,6 +64,9 @@ void opcontrol()
 
 			// roller.calculate(0);
 			io::driveRoller(0);
+			pressedIntake = false;
+			// io::driveTScorer(0);
+			// io::driveBScorer(0);
 		}
 
 		// io::driveRoller(roller.getOutput());
@@ -74,8 +82,8 @@ void opcontrol()
 		{
 			// topScorer.calculate(127);
 			// botScorer.calculate(-127);
-			io::driveTScorer(90);
-			io::driveBScorer(-90);
+			io::driveTScorer(127);
+			io::driveBScorer(-75);
 		}
 		else if (master.get_digital(DIGITAL_RIGHT)) //outake
 		{
@@ -89,11 +97,16 @@ void opcontrol()
 			io::driveTScorer(80);
 			io::driveBScorer(80);
 		}
-
+		else if (master.get_digital(DIGITAL_Y) || pressedIntake)
+		{
+			io::driveTScorer(50);
+			io::driveBScorer(50);
+		}
 		else
 		{
 			// topScorer.calculate(0);
 			// botScorer.calculate(0);
+			// io::driveRoller(0);
 			io::driveTScorer(0);
 			io::driveBScorer(0);
 		}
