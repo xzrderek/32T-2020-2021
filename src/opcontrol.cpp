@@ -11,6 +11,10 @@
 
 void opcontrol()
 {
+	Odom odom;
+
+	Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY(), odom.getXInch(), odom.getYInch());
+
 	using namespace io;
 
 	int towerMode = 0, lastPos = 0;
@@ -111,8 +115,9 @@ void opcontrol()
 			io::driveBScorer(0);
 		}
 
-		std::cout << LF.get_position() << std::endl;
-		std::cout << RF.get_position() << std::endl;
+		std::cout << "X Position" << odom.getX() << std::endl;
+		std::cout << "Y Position" << odom.getY() << std::endl;
+		std::cout << "Heading" << odom.getThetaDeg() << std::endl;
 
 		// io::driveTScorer(topScorer.getOutput());
 		// io::driveBScorer(botScorer.getOutput());

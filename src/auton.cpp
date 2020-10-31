@@ -321,7 +321,7 @@ void skills4()
 // chassis.strafexdrive(-40, 30, 80, 2).withGain(20).withAngle(90, 127, 4).withRelative(false, 0.2).withTurnGain(6).withTol(1).waitUntilSettled();
 // chassis.strafexdrive(0, 0, 127, 2).withGain(20).withAngle(0, 127, 4).withRelative(false, 0.2).withTurnGain(6).withTol(1).waitUntilSettled();
 
-void skills1()
+void skills5()
 {
   //init
   chassis.lock();
@@ -394,7 +394,7 @@ void skills1()
   // roller(0);
   scorer(30);
   chassis.strafexdrive(-88, 20, 100, 2).withGain(20).withAngle(90, 127, 4).withRelative(false, 0.5).withTurnGain(6).withTol(1).waitUntilSettled(); //untested values, attempted withangle(), maybe easier to just do .turn and then .strafexdrive or .strafe, 16 might be 4
-  chassis.drive(600, 100, 2).withTol(100).waitUntilSettled(); //changed speed from 90 to 127
+  chassis.drive(600, 100, 2).withTol(100).waitUntilSettled();                                                                                      //changed speed from 90 to 127
   //can combine previous 2 or 3 movements into 1!
 
   //3rd goal, turn and drive to
@@ -429,7 +429,7 @@ void skills1()
   // delay(100);
   //score finish
   //4th goal finished
-  
+
   //poop
   //-back 300
   //-111, -/31
@@ -534,7 +534,7 @@ void skills1()
   chassis.turn(135, 127).withTol(5).waitUntilSettled();
   autonscore(6, 600, 400);
   //finish 8th goal
-  
+
   //drive to next ball
   chassis.drive(-300, 100, 2).withTol(150).waitUntilSettled();
   afterscore();
@@ -582,11 +582,12 @@ void skills3()
   chassis.strafexdrive(0, 0, 127, 2).withGain(20).withTol(1).waitUntilSettled();
 }
 
-void skills2() {
+void skills2()
+{
   chassis.lock();
   // chassis.strafexdrive(-300, 300, 100, 2).withGain(20).withRelative(true).withTol(60).waitUntilSettled();
   // chassis.turn(0, 127).withTol(5).waitUntilSettled();
-  
+
   chassis.drive(-800, 127, 2).withTol(150).waitUntilSettled();
   roller(127);
   scorer(-127); //was -127
@@ -670,7 +671,7 @@ void skills2() {
   chassis.turn(135, 127).withTol(5).waitUntilSettled();
   autonscore(6, 600, 400);
   //finish 8th goal
-  
+
   //drive to next ball
   chassis.drive(-300, 100, 2).withTol(150).waitUntilSettled();
   afterscore();
@@ -689,7 +690,6 @@ void skills2() {
   RollerT.move(127);
   RollerB.move(127);
 
-
   //drive to ball
   // chassis.strafexdrive(-54, -82, 80, 2).withGain(20).withAngle(135, 127, 16).withRelative(false, 0.5).withTurnGain(6).withTol(1).waitUntilSettled(); //untested values, attempted withangle(), maybe easier to just do .turn and then .strafexdrive or .strafe, 16 might be 4
   //drive to 6th goal
@@ -698,7 +698,19 @@ void skills2() {
   // chassis.turn(90, 127).withTol(5).waitUntilSettled();
   // chassis.drive(1200, 100, 2).withTol(60).waitUntilSettled();
   // chassis.turn(90, 127).withTol(5).waitUntilSettled();
+}
 
+void skills1()
+{
+  chassis.lock();
+  odom.zero();
 
+  chassis.strafexdrive(20, 20, 80, 2).withGain(20).withAngle(-90, 100, 4).withRelative(false, 0.5).withTurnGain(6).withTol(1).waitUntilSettled();
+  delay(500);
+
+  chassis.strafexdrive(-10, 10, 80, 2).withGain(20).withAngle(45, 127, 2).withRelative(false, 0.3).withTurnGain(6).withTol(1).waitUntilSettled();
+  delay(500);
+  
+  chassis.strafexdrive(0, 0, 100, 2).withGain(20).withAngle(0, 100, 2).withRelative(false, 0.3).withTurnGain(6).withTol(1).waitUntilSettled();
 
 }

@@ -56,19 +56,20 @@ void initialize() {
 
   std::cout << "Tasks Initialized!" << std::endl;
 
-  Disp.addInfo("Left", 'i', odom.getL())
-      .addInfo("Right", 'i', odom.getR())
-      .addInfo("Middle", 'i', odom.getM())
-      .addInfo("Deg Theta", 'd', odom.getThetaDeg())
-      .addInfo("Rad Theta", 'd', odom.getThetaRad())
-      .addInfo("X", 'd', odom.getX())
-      .addInfo("Y", 'd', odom.getY())
-      .addInfo("X inches", 'd', odom.getXInch())
-      .addInfo("Y inches", 'd', odom.getYInch())
-      .addInfo("X1 LF", 'd', odom.getLF())
-      .addInfo("Y1 RF", 'd', odom.getRF())
-      .addInfo("Y2 LB", 'd', odom.getLB())
-      .addInfo("X2 RB", 'd', odom.getRB());
+  Disp.addInfo("X Pos", 'd', odom.getXInch())
+      .addInfo("Y Pos", 'd', odom.getYInch())
+      .addInfo("Deg Heading", 'd', odom.getThetaDeg())
+      .addInfo("Rad Heading", 'd', odom.getThetaRad())
+      .addInfo("Left Wheel", 'i', odom.getL())
+      .addInfo("Right Wheel", 'i', odom.getR())
+      .addInfo("Middle Wheel", 'i', odom.getM())
+      // .addInfo("X inches", 'd', odom.getXInch())
+      // .addInfo("Y inches", 'd', odom.getYInch())
+      // .addInfo("X1 LF", 'd', odom.getLF())
+      // .addInfo("Y1 RF", 'd', odom.getRF())
+      // .addInfo("Y2 LB", 'd', odom.getLB())
+      // .addInfo("X2 RB", 'd', odom.getRB())
+      ;
 
 
   // Disp.addInfo("Rack", 'i', rack.getPot())
