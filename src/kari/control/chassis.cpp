@@ -1,10 +1,10 @@
 #include "kari/control/chassis.h"
 #include "kari/util/misc.h"
 
-pros::Motor LF(17, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            LB(7, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            RF(11, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            RB(18, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS);
+pros::Motor LF(13, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_COUNTS),
+            LB(14, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_COUNTS),
+            RF(19, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_COUNTS),
+            RB(20, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_COUNTS);
 
 pros::ADIUltrasonic Ultrasonic(7, 8);
 
@@ -460,15 +460,15 @@ void Chassis::run() {
 
       case DRIVING_DIST: { // Drive to Distance
 
-        std::cout << "driveError: " << driveError << std::endl;
-        std::cout << "tolerance: " << tolerance << std::endl;
-        std::cout << "target: " << target[currTarget].x << std::endl;
-        std::cout << "deltaL: " << deltaL << std::endl;
-        std::cout << "deltaR: " << deltaR << std::endl;
-        std::cout << "odomL: " << *odomL << std::endl;
-        std::cout << "odomR: " << *odomR << std::endl;
-        std::cout << "initL: " << initL << std::endl;
-        std::cout << "initR: " << initR << std::endl;
+        // std::cout << "driveError: " << driveError << std::endl;
+        // std::cout << "tolerance: " << tolerance << std::endl;
+        // std::cout << "target: " << target[currTarget].x << std::endl;
+        // std::cout << "deltaL: " << deltaL << std::endl;
+        // std::cout << "deltaR: " << deltaR << std::endl;
+        // std::cout << "odomL: " << *odomL << std::endl;
+        // std::cout << "odomR: " << *odomR << std::endl;
+        // std::cout << "initL: " << initL << std::endl;
+        // std::cout << "initR: " << initR << std::endl;
         // std::cout << "heading: " << odom.getThetaDeg() << std::endl;
 
         deltaL = *odomL - initL;

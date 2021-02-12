@@ -4,11 +4,11 @@
 
 // extern pros::Motor LF, LB, RF, RB;
 
-pros::ADIEncoder LEncoder(1, 2, true),
-                 REncoder(7, 8, true),
-                 MEncoder(3, 4);
+pros::ADIEncoder LEncoder(3, 4, true),
+                 REncoder(1, 2, true),
+                 MEncoder(7, 8);
 
-pros::Imu Imu_L(16), Imu_R(3);
+pros::Imu Imu_L(15), Imu_R(18);
 
 bool Odom::isRunning = false;
 

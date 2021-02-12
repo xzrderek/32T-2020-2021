@@ -22,7 +22,7 @@ void initialize() {
   Odom odom;
 
   //tracking wheel version. using IMU angle
-  Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY(), odom.getXInch(), odom.getYInch());
+  Chassis chassis(odom.getL(), odom.getR(), odom.getM(), odom.getThetaDeg(), odom.getX(), odom.getY(), odom.getXInch(), odom.getYInch()); 
   
   // Rack rack;
   // Arm arm;
@@ -33,11 +33,11 @@ void initialize() {
 	io::RollerR.set_brake_mode(MOTOR_BRAKE_HOLD);
 
   // Sensor Init
-  odom.calibrateGyro();
-  std::cout << "Motors / Sensors Initialized!" << std::endl;
+  odom.calibrateGyro(); 
+  std::cout << "Motors / Sensors Initialized!" << std::endl; 
 
   // Threads
-  pros::Task odomController(odom.start, NULL, "Odometry Tracker");
+  pros::Task odomController(odom.start, NULL, "Odometry Tracker"); 
 
   pros::Task baseController(chassis.start, NULL, "Chassis Controller");
 

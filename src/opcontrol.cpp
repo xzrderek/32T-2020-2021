@@ -41,10 +41,10 @@ void opcontrol()
 		// std::cout << master.get_analog(ANALOG_LEFT_Y) << std::endl;
 		// std::cout << LEncoder.get_value() << std::endl;
 
-		LF.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.1 + master.get_analog(ANALOG_LEFT_X) * 1.1 + master.get_analog(ANALOG_RIGHT_X) * 0.6);
-		LB.move_velocity(master.get_analog(ANALOG_LEFT_Y) * 1.1 - master.get_analog(ANALOG_LEFT_X) * 1.1 + master.get_analog(ANALOG_RIGHT_X) * 0.6);
-		RF.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.1 + master.get_analog(ANALOG_LEFT_X) * 1.1 + master.get_analog(ANALOG_RIGHT_X) * 0.6);
-		RB.move_velocity(-master.get_analog(ANALOG_LEFT_Y) * 1.1 - master.get_analog(ANALOG_LEFT_X) * 1.1 + master.get_analog(ANALOG_RIGHT_X) * 0.6);
+		LF.move(master.get_analog(ANALOG_LEFT_Y) * 1 + master.get_analog(ANALOG_RIGHT_X) * 1);
+		LB.move(master.get_analog(ANALOG_LEFT_Y) * 1 + master.get_analog(ANALOG_RIGHT_X) * 1);
+		RF.move(-master.get_analog(ANALOG_LEFT_Y) * 1 + master.get_analog(ANALOG_RIGHT_X) * 1);
+		RB.move(-master.get_analog(ANALOG_LEFT_Y) * 1 + master.get_analog(ANALOG_RIGHT_X) * 1);
 
 		/*--------------------------------
 				ROLLERS
@@ -55,7 +55,7 @@ void opcontrol()
 			io::driveRoller(127);
 			// io::driveTScorer(50);
 			// io::driveBScorer(50);
-			pressedIntake = true;
+			// pressedIntake = true;
 		}
 		else if (master.get_digital(DIGITAL_R2))
 		{
@@ -68,7 +68,7 @@ void opcontrol()
 
 			// roller.calculate(0);
 			io::driveRoller(0);
-			pressedIntake = false;
+			// pressedIntake = false;
 			// io::driveTScorer(0);
 			// io::driveBScorer(0);
 		}
@@ -77,35 +77,29 @@ void opcontrol()
 
 		if (master.get_digital(DIGITAL_L1)) //both up
 		{
-			// topScorer.calculate(127);
-			// botScorer.calculate(127);
-			io::driveTScorer(127);
-			io::driveBScorer(127);
+			io::driveScorer(127);
 		}
-		else if (master.get_digital(DIGITAL_L2)) //pooping
+		// else if (master.get_digital(DIGITAL_L2)) //pooping
+		// {
+		// 	// topScorer.calculate(127);
+		// 	// botScorer.calculate(-127);
+		// 	io::driveTScorer(127);
+		// 	io::driveBScorer(-75);
+		// }
+		else if (master.get_digital(DIGITAL_L2)) //outake
 		{
-			// topScorer.calculate(127);
-			// botScorer.calculate(-127);
-			io::driveTScorer(127);
-			io::driveBScorer(-75);
+			io::driveScorer(-127);
 		}
-		else if (master.get_digital(DIGITAL_RIGHT)) //outake
-		{
-			// topScorer.calculate(-127);
-			// botScorer.calculate(-127);
-			io::driveTScorer(-127);
-			io::driveBScorer(-127);
-		}
-		else if (master.get_digital(DIGITAL_X))
-		{
-			io::driveTScorer(80);
-			io::driveBScorer(80);
-		}
-		else if (master.get_digital(DIGITAL_Y) || pressedIntake)
-		{
-			io::driveTScorer(50);
-			io::driveBScorer(50);
-		}
+		// else if (master.get_digital(DIGITAL_X))
+		// {
+		// 	io::driveTScorer(80);
+		// 	io::driveBScorer(80);
+		// }
+		// else if (master.get_digital(DIGITAL_Y))
+		// {
+		// 	io::driveTScorer(50);
+		// 	io::driveBScorer(50);
+		// }
 		else
 		{
 			// topScorer.calculate(0);

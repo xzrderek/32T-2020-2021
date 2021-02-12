@@ -4,10 +4,10 @@
 namespace io {
   pros::Controller master(CONTROLLER_MASTER);
 
-  pros::Motor RollerL(10, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_ROTATIONS); // Left Roller
-  pros::Motor RollerR(13, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_ROTATIONS); // Right Roller
-  pros::Motor RollerT(4, MOTOR_GEARSET_06, 0, MOTOR_ENCODER_ROTATIONS);
-  pros::Motor RollerB(9, MOTOR_GEARSET_06, 0, MOTOR_ENCODER_ROTATIONS);
+  pros::Motor RollerL(2, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_ROTATIONS); // Left Roller
+  pros::Motor RollerR(9, MOTOR_GEARSET_36, 1, MOTOR_ENCODER_ROTATIONS); // Right Roller
+  pros::Motor RollerT(1, MOTOR_GEARSET_36, 1, MOTOR_ENCODER_ROTATIONS);
+  pros::Motor RollerB(10, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_ROTATIONS);
 
   void roller(int speed) {
     RollerL.move(speed);
@@ -45,6 +45,11 @@ namespace io {
   }
 
   void driveBScorer(int speed) {
+    RollerB.move(speed);
+  }
+
+  void driveScorer(int speed) {
+    RollerT.move(speed);
     RollerB.move(speed);
   }
 
