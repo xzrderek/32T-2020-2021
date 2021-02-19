@@ -5,7 +5,7 @@
 // extern pros::Motor LF, LB, RF, RB;
 
 pros::ADIEncoder LEncoder(3, 4, true),
-                 REncoder(1, 2, true),
+                 REncoder(5, 6),
                  MEncoder(7, 8);
 
 pros::Imu Imu_L(15), Imu_R(18);
@@ -21,7 +21,7 @@ double Odom::thetaRad = 0, Odom::thetaDeg = 0, Odom::lastThetaDeg = 0, Odom::off
 
 double Odom::output = 0, Odom::Desiredtheta = 0, Odom::DesiredX = 0, Odom::DesiredY = 0;
 
-double Odom::wheelWidth = 14.75; //in inch
+double Odom::wheelWidth = 7.5; //in inch
 
 double * Odom::getLF() {
   return &currentLF;
