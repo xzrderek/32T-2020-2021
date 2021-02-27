@@ -37,6 +37,10 @@ void opcontrol()
 
 	while (true)
 	{
+		// std::cout << TopUltrasonic.get_value() << std::endl;
+		std::cout << BottomUltrasonic.get_value() << std::endl;
+
+
 		// printf("%lf", LEncoder.get_value());
 		// std::cout << master.get_analog(ANALOG_LEFT_Y) << std::endl;
 		// std::cout << LEncoder.get_value() << std::endl;
@@ -109,9 +113,16 @@ void opcontrol()
 			io::driveBScorer(0);
 		}
 
-		std::cout << "X Position" << odom.getX() << std::endl;
-		std::cout << "Y Position" << odom.getY() << std::endl;
-		std::cout << "Heading" << odom.getThetaDeg() << std::endl;
+		if(master.get_digital(DIGITAL_UP)) {
+			io::touchBall(false, 127, 1);
+			io::driveScorer(127);
+			pros::delay(1500);
+			io::touchBall(false, 127, 1);
+		}
+
+		// std::cout << "X Position" << odom.getX() << std::endl;
+		// std::cout << "Y Position" << odom.getY() << std::endl;
+		// std::cout << "Heading" << odom.getThetaDeg() << std::endl;
 
 		// io::driveTScorer(topScorer.getOutput());
 		// io::driveBScorer(botScorer.getOutput());

@@ -9,6 +9,10 @@ namespace io {
   pros::Motor RollerT(1, MOTOR_GEARSET_36, 1, MOTOR_ENCODER_ROTATIONS);
   pros::Motor RollerB(10, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_ROTATIONS);
 
+  pros::ADIUltrasonic BottomUltrasonic(1, 2);
+  pros::ADIUltrasonic TopUltrasonic({{5, 1, 2}});
+
+
   void roller(int speed) {
     RollerL.move(speed);
     pros::delay(50);
@@ -102,7 +106,59 @@ namespace io {
     roller(127);
     scorer(speed);
   }
+  
+  void scoreBalls(bool sensor, int speed, int balls) {
+    int counter = 0;
+    while (counter <= balls) {
+      if(sensor) {
+        driveScorer(speed);
+        driveRoller(50);
+        if(checkDist(sensor)) {
+          counter++;
+          while(checkDist(sensor)) pros::delay(50);
+        }
+      }
+      else {
+        driveScorer(50);
+        driveRoller(speed);
+        if(checkDist(sensor)) {
+          counter++;
+          while(checkDist(sensor)) pros::delay(50);
+        }
+      }
+      
+    }
+    driveRoller(0);
+    driveScorer(0);
+  }
 
+  void touchBall(bool sensor, int speed, int balls) {
+    if(sensor) {
+      while (!checkDist(sensor)) {
+        driveScorer(speed);
+        driveRoller(50);
+      }
+    }
+    else {
+      while (!checkDist(sensor)) {
+        driveScorer(50);
+        driveRoller(speed);
+      }
+    }
+    driveRoller(0);
+    driveScorer(0);
+  }
+
+  bool checkDist(bool sensor) {
+    if(sensor) {
+      if(TopUltrasonic.get_value() < 150) return true;
+      else return false;
+    }
+    else {
+      if(BottomUltrasonic.get_value() < 150) return true;
+      else return false;
+  }
+  }
 }
 
 namespace macro {

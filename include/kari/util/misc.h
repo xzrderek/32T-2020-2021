@@ -6,6 +6,8 @@ namespace io {
 
   extern pros::Motor RollerL, RollerR, RollerT, RollerB;
 
+  extern pros::ADIUltrasonic BottomUltrasonic, TopUltrasonic;
+
   // Rotates the rollers in a given speed. Use negative values for going down. Uses RPM for speed.
   void roller(int speed);
 
@@ -25,6 +27,9 @@ namespace io {
   void autonscore(double rot, int speed, int time);
   void afterscore();
   void index(int speed = 30);
+  void scoreBalls(bool sensor, int speed, int balls);
+  void touchBall(bool sensor, int speed, int balls);
+  bool checkDist(bool sensor);
 }
 
 namespace macro {

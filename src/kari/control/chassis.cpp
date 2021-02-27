@@ -1,9 +1,9 @@
 #include "kari/control/chassis.h"
 #include "kari/util/misc.h"
 
-pros::Motor LF(13, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_COUNTS),
+pros::Motor LF(13, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
             LB(14, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_COUNTS),
-            RF(19, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_COUNTS),
+            RF(19, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
             RB(20, MOTOR_GEARSET_18, 1, MOTOR_ENCODER_COUNTS);
 
 pros::ADIUltrasonic Ultrasonic(7, 8);
