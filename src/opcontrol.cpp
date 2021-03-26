@@ -37,8 +37,8 @@ void opcontrol()
 
 	while (true)
 	{
-		// std::cout << TopUltrasonic.get_value() << std::endl;
-		std::cout << BottomUltrasonic.get_value() << std::endl;
+		std::cout << TopUltrasonic.get_value() << std::endl;
+		// std::cout << BottomUltrasonic.get_value() << std::endl;
 
 
 		// printf("%lf", LEncoder.get_value());
@@ -114,10 +114,16 @@ void opcontrol()
 		}
 
 		if(master.get_digital(DIGITAL_UP)) {
-			io::touchBall(false, 127, 1);
-			io::driveScorer(127);
-			pros::delay(1500);
-			io::touchBall(false, 127, 1);
+			// io::touchBall(false, 127, 1);
+			// io::driveScorer(127);
+			// pros::delay(1500);
+			// io::touchBall(false, 127, 1);
+			io::scoreBalls(true, 127, 1);
+			// io::driveScorer(127);
+			// io::delay(250);
+			// io::driveScorer(0);
+			// io::delay(250);
+
 		}
 
 		// std::cout << "X Position" << odom.getX() << std::endl;

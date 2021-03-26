@@ -81,39 +81,7 @@ void skills4()
 
 void skills5()
 {
-  //init
-  chassis.lock();
-  odom.zero();
-}
 
-void skills3()
-{
-
-}
-
-void skills2()
-{
-  chassis.lock();
-  odom.zero();
-  driveRoller(127);
-  chassis.left(20);
-  chassis.right(20);
-  score(1, 600);
-  delay(750);
-  chassis.left(0);
-  chassis.right(0);
-  driveRoller(0);
-  delay(500);
-  driveScorer(-127);
-  driveRoller(-80);
-
-  //second goal done
-  chassis.drive(-500, 127, 2).withAngle(0, 127, 4).withGain(1).withTol(50).waitUntilSettled();  //angle should be 90
-
-}
-
-void skills1()
-{
   chassis.lock();
   odom.zero();
   driveRoller(-40);
@@ -134,14 +102,14 @@ void skills1()
   delay(500);
   driveScorer(-127);
   driveRoller(-127);
-  chassis.drive(-750, 127, 2).withAngle(45, 127, 4).withGain(1).withTol(50).waitUntilSettled();
+  chassis.drive(-500, 127, 2).withAngle(45, 127, 4).withGain(1).withTol(50).waitUntilSettled();
   //backing out from first goal
   // chassis.drive(3700, 100, 1).withAngle(180, 127, 4).withTol(50).waitUntilSettled();
-  chassis.drive(-2000, 127, 2).withAngle(0, 127, 4).withGain(1).withTol(50).waitUntilSettled();
+  chassis.drive(-2100, 110, 1).withAngle(0, 127, 4).withGain(1).withTol(50).waitUntilSettled();
   driveScorer(0);
-  delay(250);
+  delay(500);
   driveRoller(127);
-  chassis.turn(90, 100, 2).withTol(5).waitUntilSettled();
+  chassis.turn(85, 100, 1).withTol(5).waitUntilSettled();
   delay(250);
   chassis.left(80);
   chassis.right(80);
@@ -161,16 +129,62 @@ void skills1()
   driveRoller(-127);
 
   //second goal done
-  chassis.drive(-1000, 127, 2).withAngle(90, 127, 4).withGain(1).withTol(50).waitUntilSettled();  //angle should be 90
-  chassis.drive(1400, 100, 1).withAngle(180, 127, 4).withTol(50).waitUntilSettled(); //180 might not work
+  chassis.drive(-600, 127, 2).withAngle(90, 127, 4).withGain(1).withTol(50).waitUntilSettled();  //angle should be 90
+  chassis.drive(1300, 127, 1).withAngle(180, 127, 4).withTol(50).waitUntilSettled(); //180 might not work
   driveRoller(127);
-  chassis.turn(135, 127, 2).withTol(5).waitUntilSettled();
-  driveScorer(0);
+  // driveScorer(127);
+  chassis.turn(145, 127, 2).withTol(5).waitUntilSettled();
   chassis.left(80);
   chassis.right(80);
-  delay(1200);
+  driveRoller(127);
+  delay(1000);
+  chassis.left(20);
+  chassis.right(20);
+  scoreBalls(true, 127, 3);
+  // touchBall(true, 127, 3);
+  driveRoller(-127);
+  driveScorer(-127);
+
+  //third goal done
+  chassis.drive(-500, 127, 2).withGain(1).withTol(50).waitUntilSettled();  //angle should be 90
+
+}
+
+void skills2()
+{
+
+  chassis.lock();
+  odom.zero();
+  driveRoller(-40);
+  delay(500);
+  driveRoller(127);
+  chassis.left(65);
+  chassis.right(100);
+  delay(500);
+  chassis.turn(45, 127, 2).withTol(5).waitUntilSettled();
+  chassis.left(0);
+  chassis.right(0);
   driveScorer(127);
+  delay(400);
+  chassis.left(0);
+  chassis.right(0);
+  delay(500); //was 500
   driveRoller(0);
+  delay(500);
+  driveScorer(-127);
+  driveRoller(-127);
+  chassis.drive(-500, 127, 2).withAngle(45, 127, 4).withGain(1).withTol(50).waitUntilSettled();
+  //backing out from first goal
+  // chassis.drive(3700, 100, 1).withAngle(180, 127, 4).withTol(50).waitUntilSettled();
+  chassis.drive(-2100, 110, 1).withAngle(0, 127, 4).withGain(1).withTol(50).waitUntilSettled();
+  driveScorer(0);
+  delay(500);
+  driveRoller(127);
+  chassis.turn(85, 100, 1).withTol(5).waitUntilSettled();
+  delay(250);
+  chassis.left(80);
+  chassis.right(80);
+  delay(500);
   chassis.left(20);
   chassis.right(20);
   touchBall(false, 127, 1);
@@ -182,9 +196,108 @@ void skills1()
   driveRoller(0);
   delay(500);
   touchBall(false, 127, 1);
+  driveRoller(0);
   driveScorer(-127);
-  driveRoller(-80);
+  // driveRoller(-80);
+
+  //second goal done
+  chassis.drive(-600, 127, 2).withAngle(90, 127, 4).withGain(1).withTol(50).waitUntilSettled();  //angle should be 90
+  chassis.drive(1400, 127, 1).withAngle(180, 127, 4).withTol(50).waitUntilSettled(); //180 might not work
+  driveRoller(-127);
+  // driveScorer(127);
+  chassis.turn(145, 127, 2).withTol(5).waitUntilSettled();
+  // driveRoller(127);
+  chassis.left(80);
+  chassis.right(80);
+  driveRoller(127);
+  delay(1000);
+  chassis.left(20);
+  chassis.right(20);
+  scoreBalls(true, 127, 3);
+  // touchBall(true, 127, 3);
+  driveRoller(-127);
+  driveScorer(-127);
 
   //third goal done
   chassis.drive(-500, 127, 2).withGain(1).withTol(50).waitUntilSettled();  //angle should be 90
+}
+
+void skills1()
+{
+  chassis.lock();
+  odom.zero();
+  driveRoller(-40);
+  delay(500);
+  driveRoller(127);
+  chassis.left(65);
+  chassis.right(100);
+  delay(500);
+  chassis.turn(45, 127, 2).withTol(5).waitUntilSettled();
+  chassis.left(40);
+  chassis.right(40);
+  driveRoller(0);
+  scoreBalls(true, 127, 1);
+  driveScorer(127);
+  delay(250);
+  driveScorer(0);
+  // driveScorer(-127);
+  chassis.left(0);
+  chassis.right(0);
+  driveRoller(-127);
+  chassis.drive(-500, 127, 2).withAngle(45, 127, 4).withGain(1).withTol(50).waitUntilSettled();
+  //backing out from first goal
+  // chassis.drive(3700, 100, 1).withAngle(180, 127, 4).withTol(50).waitUntilSettled();
+  chassis.drive(-2100, 127, 1).withAngle(0, 127, 4).withGain(1).withTol(50).waitUntilSettled();
+  driveScorer(0);
+  delay(250);
+  driveRoller(-127);
+  chassis.turn(80, 127, 1).withTol(5).waitUntilSettled();
+  delay(50);
+  chassis.left(80);
+  chassis.right(80);
+  delay(500);
+  chassis.left(20);
+  chassis.right(20);
+  // touchBall(false, 127, 1);
+  driveScorer(127);
+  // score(1, 600);
+  delay(400);
+  chassis.left(0);
+  chassis.right(0);
+  // driveRoller(0);
+  // delay(500);
+  // touchBall(false, 127, 1);
+  driveScorer(-127);
+  driveRoller(-127);
+
+  //second goal done
+  chassis.drive(-1600, 127, 1).withAngle(90, 127, 4).withGain(1).withTol(50).waitUntilSettled();
+  chassis.drive(700, 127, 1).withAngle(90, 127, 4).withGain(1).withTol(50).waitUntilSettled();
+  // chassis.drive(-600, 127, 2).withAngle(90, 127, 4).withGain(1).withTol(50).waitUntilSettled();  //angle should be 90
+  chassis.drive(1775, 127, 1).withAngle(180, 127, 4).withTol(50).waitUntilSettled(); //180 might not work
+  driveRoller(127);
+  // driveScorer(127);
+  chassis.turn(150, 127, 2).withTol(5).waitUntilSettled();
+  chassis.left(100);
+  chassis.right(100);
+  driveScorer(127);
+  driveRoller(127);
+  delay(1000);
+  driveRoller(-127);
+  chassis.left(20);
+  chassis.right(20);
+  delay(1000);
+  chassis.left(-127);
+  chassis.right(-127);
+  delay(1000);
+  // scoreBalls(true, 127, 1);
+  // driveScorer(127);
+  // driveRoller(-127);
+  // delay(500);
+  // touchBall(true, 127, 3);
+  // driveRoller(-127);
+  // driveScorer(-127);
+
+  //third goal done
+  // chassis.drive(-500, 127, 2).withGain(1).withTol(50).waitUntilSettled();  //angle should be 90
 }

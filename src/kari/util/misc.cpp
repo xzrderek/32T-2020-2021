@@ -109,16 +109,22 @@ namespace io {
   
   void scoreBalls(bool sensor, int speed, int balls) {
     int counter = 0;
-    while (counter <= balls) {
+    while (counter < balls) {
+  		// std::cout << TopUltrasonic.get_value() << std::endl;
+      // std::cout << "counter: " << counter << std::endl;
       if(sensor) {
         driveScorer(speed);
-        driveRoller(50);
+        // driveRoller(127);
         if(checkDist(sensor)) {
           counter++;
-          while(checkDist(sensor)) pros::delay(50);
+          while(checkDist(sensor)) {
+            // std::cout << "here" << std::endl;
+            pros::delay(10);
+          }
         }
       }
       else {
+        std::cout << "dab" << std::endl;
         driveScorer(50);
         driveRoller(speed);
         if(checkDist(sensor)) {
