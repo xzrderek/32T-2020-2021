@@ -67,6 +67,12 @@ void opcontrol()
 			// roller.calculate(-127);
 			io::driveRoller(-127);
 		}
+		else if (master.get_digital(DIGITAL_X))
+		{
+
+			// roller.calculate(-127);
+			io::driveRoller(-63);
+		}
 		else
 		{
 
