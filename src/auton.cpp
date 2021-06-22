@@ -238,11 +238,14 @@ void skills1()
   driveRoller(0);
   scoreBalls(true, 127, 1);
   driveScorer(127);
-  delay(250);
+  delay(300);
   driveScorer(0);
+  driveScorer(-127);
   // driveScorer(-127);
   chassis.left(0);
   chassis.right(0);
+  delay(50);
+  driveScorer(0);
   driveRoller(-127);
   chassis.drive(-500, 127, 2).withAngle(45, 127, 4).withGain(1).withTol(50).waitUntilSettled();
   //backing out from first goal
@@ -280,16 +283,16 @@ void skills1()
   chassis.turn(150, 127, 2).withTol(5).waitUntilSettled();
   chassis.left(100);
   chassis.right(100);
-  driveScorer(127);
+  // driveScorer(127);
   driveRoller(127);
   delay(1000);
   driveRoller(-127);
   chassis.left(20);
   chassis.right(20);
   delay(1000);
-  chassis.left(-127);
-  chassis.right(-127);
-  delay(1000);
+  // chassis.left(-127);
+  // chassis.right(-127);
+  // delay(1000);
   // scoreBalls(true, 127, 1);
   // driveScorer(127);
   // driveRoller(-127);
